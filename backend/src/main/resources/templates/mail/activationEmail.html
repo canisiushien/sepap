@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}" lang="en">
+  <head>
+    <title th:text="${title}">Activation de compte</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+  </head>
+  <body>
+    <p th:text="|cher(e) ${agent.matricule}|">Dear</p>
+      Votre compte sur la plateforme S²EPAP a été créé.
+    </p>
+    <p>
+      Veuillez cliquer sur le lien ci-dessous pour l'activer.
+    </p>
+    <p>
+      <a th:with="url=(@{|${baseUrl}/account/activate?key=${agent.activationKey}|})" th:href="${url}" th:text="${url}">Lien d'activation</a>
+    </p>
+   
+    <p>
+      <span >Coordialement, </span>
+      <br />
+      <em>l'équipe de S²EPAP.</em>
+    </p>
+  </body>
+</html>

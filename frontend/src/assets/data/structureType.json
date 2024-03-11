@@ -1,0 +1,9 @@
+
+[
+
+{"id":1, "type": "CENTRALE", "libelle":"CENTRALE"},
+{"id":2, "type": "DECONCENTREE","libelle":"DECONCENTREE"},
+{"id":3, "type": "RATTACHEE","libelle":"RATTACHEE"},
+{"id":4, "type": "DE_MISSION","libelle":"MISSION"},
+{"id":5, "type": "INTERNE","libelle":"INTERNE"}
+]

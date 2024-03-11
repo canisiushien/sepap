@@ -1,0 +1,43 @@
+<div class="contaner">
+	<div class="screen">
+		<div class="screen__content">
+            <div class="text-center mt-3">
+                <h3><i class="fa fa-lock fa-4x"></i></h3>
+                <h2 class="text-center">Mot de passe oublié?</h2>
+                <p>Vous pouvez réinitialiser votre mot de passe ici.</p>
+            </div>
+			<form class="login" *ngIf="!isSuccessful" (ngSubmit)="onSubmit()" #dtf="ngForm">
+				<div class="login__field"  style="text-align: center" [hidden]="spinner">
+						<i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+				</div>
+				<div class="alert alert-danger alert-dismissible fade show" role="alert" [hidden]="erreur">
+					<small>Aucun compte trouvé pour cette adresse mail!</small>
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="login__field">
+					<i class="login__icon pi pi-envelope"></i>
+					<input name="email" #email="ngModel" [(ngModel)]="passwordForget.email" type="email" class="login__input" placeholder="Adresse mail" pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
+				</div>
+				<br>
+				<button type="submit" class="button login__submit" [disabled]="!dtf.form.valid">
+					<span class="button__text">Soumettre</span>
+					<i class="button__icon pi pi-send"></i>
+				</button>
+			</form>
+            <div *ngIf="isSuccessful" class="alert alert-success alert-dismissible fade show" role="alert">
+                <h2 class="text-center"> Veuillez consulter votre boite mail pour pourvuivre!</h2>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+		</div>
+		<div class="screen__background">
+			<span class="screen__background__shape screen__background__shape4"></span>
+			<span class="screen__background__shape screen__background__shape3"></span>
+			<span class="screen__background__shape screen__background__shape2"></span>
+			<span class="screen__background__shape screen__background__shape1"></span>
+		</div>
+	</div>
+</div>

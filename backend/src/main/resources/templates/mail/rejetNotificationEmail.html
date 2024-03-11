@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}" lang="en">
+  <head>
+    <title th:text="${title}">Rejet d'affiliation</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+  </head>
+  <body>
+    <p th:text="|cher(e) ${agent.matricule}|">Dear</p>
+    <p>
+      Votre affiliation à votre supérieur a été rejeté par ce dernier. Veuillez vous 
+      rapprocher de ce dernier pour de plus amples informations.
+    </p>
+    
+    <p>
+      <span >Coordialement, </span>
+      <br />
+      <em>l'équipe de Notation.</em>
+    </p>
+  </body>
+</html>

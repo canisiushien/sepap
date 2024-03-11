@@ -1,0 +1,43 @@
+[{
+        "id": 1,
+        "libelle": "exemple1",
+        "description": "description1",
+        "valeur": "valeur1",
+        "effetAttendu": "effetAttendu1",
+        "objectifStrategique": { "id": 1, "code": "code1", "libelle": "exemple1", "description": "description1" }
+    },
+    {
+        "id": 2,
+        "libelle": "exemple2",
+        "description": "description2",
+        "valeur": "valeur2",
+        "effetAttendu": "effetAttendu2",
+        "objectifStrategique": { "id": 2, "code": "code2", "libelle": "exemple2", "description": "description2" }
+    },
+    {
+        "id": 3,
+        "libelle": "exemple3",
+        "description": "description3",
+        "valeur": "valeur3",
+        "effetAttendu": "effetAttendu3",
+        "objectifStrategique": { "id": 1, "code": "code1", "libelle": "exemple1", "description": "description1" }
+    },
+    {
+        "id": 4,
+        "libelle": "exemple4",
+        "description": "description4",
+        "valeur": "valeur4",
+        "effetAttendu": "effetAttendu4",
+        "objectifStrategique": { "id": 1, "code": "code1", "libelle": "exemple1", "description": "description1" }
+    },
+    {
+        "id": 5,
+        "libelle": "exemple5",
+        "description": "description5",
+        "valeur": "valeur5",
+        "effetAttendu": "effetAttendu5",
+        "objectifStrategique": { "id": 1, "code": "code1", "libelle": "exemple1", "description": "description1" }
+    }
+
+
+]

@@ -1,0 +1,143 @@
+<nb-card>
+    <nb-card-body>
+        <nb-stepper #stepper>
+            <nb-step [stepControl]="firstForm" label="Liason-Activite">
+                <form [formGroup]="firstForm" (ngSubmit)="onFirstSubmit()" class="step-container">
+                    <nb-card status="info">
+                        <nb-card-header>Liaison Activite Produit</nb-card-header>
+                        <nb-card-body>
+                            <div class="p-fluid grid">
+                                <div class="p-fluid p-col-12 col-md-12">
+                                    <label for="typeActivites">Exercice</label>
+                                    <p-dropdown optionLabel="debut" inputId="exercices" [options]="exercices"
+                                        name="typeActivites" placeholder="Selectionner...">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-fluid p-col-12 col-md-12">
+                                    <label for="projetId">Projet </label>
+                                    <p-dropdown optionLabel="libelle" class="form-control" formControlName="projetId"
+                                        inputId="projetId" optionValue="id" [options]="projets" name="projetId"
+                                        placeholder="Selectionner...">
+                                    </p-dropdown>
+                                </div>
+
+
+
+                                <!--div class="p-fluid p-col-12 col-md-6">
+                                    <label for="matricule">Code Produit</label>
+                                    <p-inputMask formControlName="matricule" mask="9-9-9"></p-inputMask>
+                                </div-->
+
+                                <div class="p-fluid p-col-12 col-md-12">
+                                    <label for="activite">Intitulé de l'activité</label>
+
+                                    <p-dropdown optionLabel="libelle" class="form-control" formControlName="activite"
+                                        inputId="activite" optionValue="id" name="activite" optionLabel="libelle"
+                                        [options]="activites" placeholder="Selectionner...">
+                                    </p-dropdown>
+
+                                    <div class="mr-2">
+                                        <button pButton type="button" icon="pi pi-plus" iconPos="left"></button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </nb-card-body>
+                    </nb-card>
+
+                    <button nbButton nbStepperNext>Suivant</button>
+                </form>
+            </nb-step>
+            <!--nb-step [stepControl]="secondForm" label="Programmation">
+                <form [formGroup]="secondForm" (ngSubmit)="onSecondSubmit()" class="step-container">
+
+                    <nb-card status="info">
+                        <nb-card-header>Programmation</nb-card-header>
+                        <nb-card-body>
+                            <div class="p-fluid grid">
+                                <div class="p-fluid p-col-12 col-md-6">
+                                    <label for="sourceFinancementId">Source de financement</label>
+                                    <p-dropdown optionLabel="libelle" 
+                                        inputId="sourceFinancementId"
+                                        [options]="sourceFinancements" optionValue="id" name="sourceFinancementId"
+                                        placeholder="Selectionner...">
+                                    </p-dropdown>
+                                </div>
+                                <div class="p-fluid p-col-12 col-md-6">
+                                    <label for="coutPrevisionne">Cout previsionnel</label>
+                                    <input nbInput type="text" 
+                                        [ngClass]="{'form-control-danger': secondForm.invalid && (secondForm.dirty || secondForm.touched)}" />
+                                </div>
+
+                                <div class="p-fluid p-col-12 col-md-6">
+                                    <label for="coutReel">Cout reel</label>
+                                    <input nbInput type="text" name="coutReel" />
+                                </div>
+
+                                
+
+                                <div class="p-fluid p-col-12 col-md-6">
+                                    <label for="cible">Cible</label>
+                                    <input nbInput type="text" 
+                                        name="cible" />
+                                </div>
+
+                            </div>
+                        </nb-card-body>
+                    </nb-card>
+                    <button nbButton nbStepperPrevious>Précedent</button>
+                    <button nbButton nbStepperNext>Suivant</button>
+                </form>
+            </nb-step-->
+            <nb-step [stepControl]="thirdForm" label="Taches">
+                <form [formGroup]="thirdForm" (ngSubmit)="onThirdSubmit()" class="step-container">
+                    <nb-card status="info">
+                        <nb-card-header>Création de taches</nb-card-header>
+                        <nb-card-body>
+                            <div class="p-fluid grid">
+                                <div class="p-fluid p-col-12 col-md-6">
+                                    <label for="libelle">Intitulé de la tache</label>
+                                    <input nbInput type="text" 
+                                         />
+                                </div>
+                                <div class="p-fluid p-col-12 col-md-6">
+                                    <label for="description">Description</label>
+                                    <input nbInput type="text" 
+                                        />
+                                </div>
+                               
+
+
+
+                            </div>
+                        </nb-card-body>
+                    </nb-card>
+                    <button nbButton nbStepperPrevious>Précedent</button>
+                    <button nbButton nbStepperNext>Suivant</button>
+                </form>
+            </nb-step>
+            <nb-step [stepControl]="fourForm" label="Confirmation">
+                <form [formGroup]="fourForm" (ngSubmit)="onFourSubmit()" class="step-container">
+
+                    <nb-card status="info">
+                        <nb-card-header>Confirmation de création
+                            de projet d'activité</nb-card-header>
+                        <nb-card-body>
+                            <div class="p-fluid grid">
+                               
+                            </div>
+                        </nb-card-body>
+                    </nb-card>
+                    <button nbButton nbStepperPrevious>Précedent</button>
+                    <button nbButton nbStepperNext>Confirmer</button>
+                </form>
+            </nb-step>
+            <nb-step [stepControl]="fourForm" [hidden]="true" label="Confirmation">
+                <div class="step-container">
+                    <h3>Complete!</h3>
+                    <button nbButton (click)="stepper.reset()">Ressayer</button>
+                </div>
+            </nb-step>
+        </nb-stepper>
+    </nb-card-body>
+</nb-card>

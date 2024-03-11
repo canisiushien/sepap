@@ -1,0 +1,104 @@
+<div>
+    <!-- ToolBar -->
+    <app-panel-header header="La liste exemple" icon="fa fa-list fa-3x "> </app-panel-header>
+    <p-divider></p-divider>
+    <div class="p-d-flex">
+        <app-crud-toolbar (create)="onCreate()" [enableCreate]="enableCreate" (edit)="onEdit()" [enableEdit]="selection"
+            [enableDelete]="selection">
+        </app-crud-toolbar>
+        <div class="p-ml-auto">
+            <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+            <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+            </p-progressSpinner>
+        </div>
+    </div>
+    <p-divider></p-divider>
+    <!-- Context Menu -->
+    <p-contextMenu #cm [model]="contextMenuItems"></p-contextMenu>
+    <!-- Table -->
+    <p-table #dt [value]="exemples" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading"
+        (onLazyLoad)="load($event)" [totalRecords]="totalRecords" [globalFilterFields]="['libelle','description']"
+        currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements" [showCurrentPageReport]=true
+        [rowsPerPageOptions]="[10, 20]" [(selection)]="selection" selectionMode="single" styleClass="p-datatable-sm"
+        [(contextMenuSelection)]="selection" [contextMenu]="cm">
+        <!-- Caption -->
+        <ng-template pTemplate="caption">
+            <div class="text-right p-d-flex">
+                <!-- <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash">
+                </button>-->
+                <span class="p-ml-auto p-mr-2 p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+                        placeholder="Recherche..." />
+                </span>
+            </div>
+        </ng-template>
+        <!-- Header -->
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Libelle</th>
+                <th>Description</th>
+                <th>Libelle</th>
+                <th>Description</th>
+            </tr>
+        </ng-template>
+        <!-- Body -->
+        <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-exemple>
+            <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="exemple">
+                <td>{{exemple.libelle}}</td>
+                <td>{{exemple.description}}</td>
+                <td>{{exemple.libelle}}</td>
+                <td>{{exemple.description}}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+    <!-- Dialog-->
+    <p-dialog [(visible)]="showDialog" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+        [style]="{width: '50vw'}">
+        <ng-template pTemplate="header">
+            <i class="{{isEditing() ? 'pi-pencil' : 'pi-plus'}} pi p-mr-1"></i>
+            <span class="p-mr-auto">
+                {{exemple.id ? 'Modifier' : 'Ajouter'}} un exemple
+            </span>
+        </ng-template>
+        <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+        <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+        <p-divider></p-divider>
+        <!-- Form -->
+        <form (ngSubmit)="save()" #dtf="ngForm">
+            <div class="p-fluid p-grid">
+                <div class="p-fluid p-col-12 p-md-6">
+                    <label for="libelle">Libelle</label>
+                    <input id="libelle" name="libelle" #libelle="ngModel" [(ngModel)]="exemple.libelle" pInputText
+                        required />
+                 <!--<div class="p-error"
+                        *ngIf="libelle.invalid && (libelle.dirty || libelle.touched) && libelle.errors.required">
+                        <span>Veillez renseigner le libelle</span>
+                    </div>-->   
+                </div>
+                <div class="p-fluid p-col-12 p-md-6">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" #description="ngModel"
+                        [(ngModel)]="exemple.description" rows="4" pInputTextarea required></textarea>
+                   <!-- <div class="p-error"
+                        *ngIf="description.invalid && (description.dirty || description.touched) && description.errors.required">
+                        <span>Veillez renseigner la description</span>
+                    </div>-->   
+                </div>
+
+            </div>
+            <p-divider></p-divider>
+            <div class="p-ml-auto text-right">
+                <button type="reset" label="Annuler" (click)="showDialog=false"
+                    class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+                <button type="submit" [disabled]="!dtf.form.valid" label="{{isEditing() ? 'Enregistrer' : 'Ajouter'}}"
+                    icon="pi {{isEditing() ? 'pi-save' : 'pi-plus'}}"
+                    class="p-button-raised p-button-text {{isEditing() ? 'p-button-primary' : 'p-button-success'}}"
+                    pButton>
+                </button>
+            </div>
+        </form>
+    </p-dialog>
+    <!-- Confirmation -->
+    <app-confirmation></app-confirmation>
+</div>

@@ -1,0 +1,128 @@
+<!--Tab menu affiche de critères-->
+<p-tabMenu [model]="items" [activeItem]="items[1]"></p-tabMenu>
+<div>
+    <p-card>
+      <div class="p-fluid grid p-formgrid">
+        <div class="p-field p-col-12 col-md-4">
+        </div>
+        <div class="p-field p-col-12 col-md-4">
+            <label for="exerciceId">Exercice</label>
+            <p-dropdown name="exerciceId" [(ngModel)]="exerciceId" optionLabel="debut" inputId="id"
+                    [options]="exercicesAlls" name="exerciceId" [filter]="true" filterBy="debut" [showClear]="true"
+                    placeholder="Selectionner..." [required]= "true">
+                    <ng-template let-exercice  pTemplate="exercice">
+                      {{exercice.debut | date:'yyyy'}}
+                     </ng-template>
+            </p-dropdown>
+        </div>
+        <div class="p-field p-col-12 col-md-4">
+            <label for="searchBtn" style="margin-top: 2px;">Rechercher</label>
+            <p-button inputId="searchBtn" label="Rechercher" icon="pi pi-search" iconPos="right" (click)="getExercice(exerciceId)">
+            </p-button>
+        </div>
+    </div>
+      <!-- ToolBar -->
+      <div class="p-d-flex">
+       
+        <div class="p-ml-auto">
+          <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+          <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+          </p-progressSpinner>
+        </div>
+      </div>
+      <p-divider></p-divider>
+  
+      <p-table #dt [value]="evaluationGouvernances" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading"
+        (onLazyLoad)="load($event)" [totalRecords]="totalRecords"
+        [globalFilterFields]="['valeurReference','nonapplicable', 'critereGouvernance.indicateur','valeur']"
+        currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements" [showCurrentPageReport]=true
+        [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+  
+        <ng-template pTemplate="caption">
+          <div class="row">
+            <div class="col" style="padding: 8px; margin-left: 8px">
+              <span>Liste de mes critères de gouvernance</span>
+            </div>
+            <div class="col text-right">
+              <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+                  placeholder="Recherche..." />
+              </span>
+            </div>
+          </div>
+  
+        </ng-template>
+  
+        <ng-template pTemplate="header">
+          <tr>
+  
+            <th pSortableColumn="indicateur">Indicateur critère
+              <p-sortIcon field="indicateur"></p-sortIcon>
+            </th>
+  
+            <th pSortableColumn="valeurReference">Valeur de reference
+              <p-sortIcon field="valeurReference"></p-sortIcon>
+            </th>
+            <th pSortableColumn="valeur">Valeur
+              <p-sortIcon field="valeur"></p-sortIcon>
+            </th>
+            <th pSortableColumn="nonapplicable">Applicable
+                <p-sortIcon field="nonapplicable"></p-sortIcon>
+            </th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData  let-evaluationGouvernance>
+          <tr [pSelectableRow]="rowData"  [pContextMenuRow]="evaluationGouvernance">
+            <td>{{evaluationGouvernance ? evaluationGouvernance.critereGouvernance.indicateur : '-'}} </td>
+            <td>{{evaluationGouvernance.valeurReference}} </td>
+            <td>{{evaluationGouvernance.valeur }} </td>
+            <td>{{!evaluationGouvernance.nonapplicable == true ? 'Oui':'Non'}} </td>
+            <td>
+              <app-actions-toolbal-iud  (edit)="onEdit(evaluationGouvernance)" [enableBtnEdit]="enableBtnEdit" >
+              </app-actions-toolbal-iud>
+  
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  
+  <!-- Dialog-->
+  <p-dialog [(visible)]="showDialog" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+    <ng-template pTemplate="header">
+      <i class="pi-pencil pi p-mr-1"></i>
+      <span class="mr-auto">
+       Modifier critère de gouvernance
+      </span>
+    </ng-template>
+    <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+    <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+    <!-- Form -->
+    <form (ngSubmit)="edit()" #dtf="ngForm">
+      <div class="p-fluid grid">
+        <div class="p-fluid p-col-12 col-md-12 mb-3">
+          <label for="valeurReference">Valeur de reference</label>
+          <input id="valeurReference"  name="valeurReference" #valeurReference="ngModel" [(ngModel)]="evaluationGouvernance.valeurReference" pInputText readonly  required />
+        </div>
+        <div class="p-fluid p-col-12 col-md-12 mb-3">
+          <label for="valeur">Valeur</label>
+          <input id="valeur" name="valeur" #valeur="ngModel" [(ngModel)]="evaluationGouvernance.valeur" pInputText required />
+        </div>
+        <div class="p-fluid p-col-12 col-md-6">
+          <label class="mr-2" for="nonapplicable">Applicable</label>
+          <p-checkbox id="nonapplicable" name="nonapplicable" #nonapplicable="ngModel" [(ngModel)]="evaluationGouvernance.nonapplicable" [binary]="true" inputId="binary" [required]="true"></p-checkbox>
+        </div>
+      </div>
+        <p-divider></p-divider>
+
+        <div class="p-ml-auto text-right">
+            <button type="reset" label="Annuler" (click)="showDialog=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+            <button type="submit" [disabled]="!dtf.form.valid" label="Enregistrer" icon="pi pi-save" class="p-button-raised p-button-text p-button-primary" pButton>
+            </button>
+        </div>
+</form>
+</p-dialog>
+  
+  </div>

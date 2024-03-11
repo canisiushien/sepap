@@ -1,0 +1,179 @@
+<p-tabMenu [model]="items" [activeItem]="items[1]"></p-tabMenu>
+<p-toast></p-toast>
+<p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+<div>
+  <p-card>
+    <!-- ToolBar -->
+    <!-- <app-panel-header header="La liste des agents" icon="fa fa-list fa-3x "> </app-panel-header> -->
+    <!-- <p-divider></p-divider> -->
+    <div class="p-d-flex">
+      <!-- <app-crud-toolbar [enableCreate]="enableCreate" (create)="onCreate()">
+          </app-crud-toolbar> -->
+      <div class="p-ml-auto">
+        <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+        <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+        </p-progressSpinner>
+      </div>
+    </div>
+    <p-divider></p-divider>
+
+    <p-table #dt [value]="programmations" styleClass="p-datatable-striped" dataKey="idp" editMode="row" [paginator]="true" [rows]="recordsPerPage"
+      [loading]="isLoading"  [totalRecords]="totalRecords"
+      currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements" [showCurrentPageReport]=true
+      [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm" [globalFilterFields]="['structure.sigle','projet.libelle','coutReel','coutPrevisionnel','cible','activite.libelle']">
+
+      <!-- <p-contextMenu #cm [model]="contextMenuItems"></p-contextMenu>
+  <p-table #dt [value]="agents" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading" (onLazyLoad)="load($event)" [totalRecords]="totalRecords" [globalFilterFields]="['matricule','nom','prenom','email']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+      [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" [(selection)]="selection" selectionMode="single" styleClass="p-datatable-sm" [(contextMenuSelection)]="selection" [contextMenu]="cm"> -->
+
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="p-fluid p-col-12 col-md-6">
+              <label><h5>Liste des programmations</h5></label>
+          </div>
+          <div class="p-fluid p-col-12 col-md-2" [hidden]="btnStruct">
+            <span class="p-input-icon-left">
+              <label for="structure">Structure </label>
+              <p-dropdown  optionLabel="sigle" inputId="structure" [options]="structures"
+             (onChange)="changeStructure($event)"  name="structure" [filter]="true" filterBy="libelle" [showClear]="true"  placeholder="Selectionner...">
+              </p-dropdown>
+            </span>
+          </div>
+          <div class="p-fluid p-col-12 col-md-2" [hidden]="!btnStruct">
+            <span class="p-input-icon-left">
+            </span>
+        </div>
+          <div class="p-fluid p-col-12 col-md-2" >
+            <label>Recherche</label>
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+            placeholder="Recherche..." />
+
+        </div>
+      </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="activite">Activité
+            <p-sortIcon field="activite"></p-sortIcon>
+          </th>
+          <th pSortableColumn="projet">Projet
+            <p-sortIcon field="projet"></p-sortIcon>
+          </th>
+          <th pSortableColumn="projet">Tâche
+            <p-sortIcon field="projet"></p-sortIcon>
+          </th>
+          <!-- <th pSortableColumn="coutPrevisionnel">Coût Prévisionnel
+            <p-sortIcon field="coutPrevisionnel"></p-sortIcon>
+          </th> -->
+          <!-- <th pSortableColumn="coutReel">Coût Réel
+            <p-sortIcon field="coutReel"></p-sortIcon>
+          </th> -->
+          <th pSortableColumn="cible">Cible
+            <p-sortIcon field="cible"></p-sortIcon>
+          </th>
+          <th pSortableColumn="statut">Statut
+            <p-sortIcon field="statut"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="structure">Structure
+            <p-sortIcon field="structure"></p-sortIcon>
+          </th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <!-- liste des programmations non validées au CASEM -->
+      <ng-template pTemplate="body" let-editing="editing" let-ri="rowIndex" let-rowData let-rowIndex="rowIndex"
+        let-programmation>
+        <!-- <tr *ngIf="!programmation.validationFinal" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pEditableRow]="programmation"> -->
+        <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pEditableRow]="programmation">
+          <td>{{programmation.activite.libelle}} </td>
+          <td>{{programmation ? programmation.projet.libelle:''}} </td>
+          <td>
+            {{programmation.taches.length}}
+          </td>
+          <!-- <td>
+            {{programmation.coutPrevisionnel}}
+          </td>
+          <td>
+            {{programmation.coutReel}}
+          </td> -->
+          <td>
+            {{programmation.cible}}
+          </td>
+          <td pTooltip="En attente d'être validé par le responsable {{programmation.structure.sigle}}" [ngStyle]="{backgroundColor:'var(--pink-100)'}" *ngIf="!programmation.validationInitial && !programmation.validationInterne && !programmation.validationFinal">
+            <p class="text-center">LOCAL</p>
+          </td>
+          <td pTooltip="En attente d'être validé par DGESS" [ngStyle]="{backgroundColor:'var(--yellow-200)'}" *ngIf="programmation.validationInitial && !programmation.validationInterne && !programmation.validationFinal">
+            <p class="text-center">INITIAL</p>
+          </td>
+          <td pTooltip="En attente d'être validé au CASEM" [ngStyle]="{backgroundColor:'var(--yellow-400)'}" *ngIf="programmation.validationInitial && programmation.validationInterne && !programmation.validationFinal">
+            <p class="text-center">DGESS</p>
+          </td>
+          <td [ngStyle]="{backgroundColor:'var(--green-300)'}" *ngIf=" programmation.validationFinal">
+            <p class="text-center">CASEM</p>
+          </td>
+          <td>{{programmation.structure.sigle}} </td>
+          <td>
+
+            <app-actions-toolbal-iud *ngIf="!editing" [enableBtnInfo]="enableBtnInfo" (info)="onInfo(programmation)"
+              [enableBtnTreat]="enableBtnTreat" (treat)="onTreat(programmation)"
+              (delete)="null" [enableBtnDelete]="enableBtnDelete">
+            </app-actions-toolbal-iud>
+
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+  <p-dialog [(visible)]="showDialog" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+    <ng-template pTemplate="header">
+        <i class="pi-pencil pi p-mr-1"></i>
+        <span class="mr-auto">Modifier une programmation</span>
+</ng-template>
+<p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+<p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+<p-divider> </p-divider>
+<!-- Form -->
+<form (ngSubmit)="save()" #dtf="ngForm">
+<!-- cible -->
+        <div class="p-fluid p-grid">
+            <div class="p-fluid p-col-12 p-md-6">
+                <label for="cible">Cible</label>
+                <input id="cible" name="cible" #cible="ngModel" [(ngModel)]="programmation.cible" pInputText required />
+
+            </div>
+        </div>
+
+<!-- coutReel -->
+
+        <div class="p-fluid p-grid">
+            <div class="p-fluid p-col-12 p-md-6">
+                <label for="coutReel">Coût Réel</label>
+                <input id="coutReel" name="coutReel" #coutReel="ngModel" [(ngModel)]="programmation.coutReel" pInputText required />
+
+            </div>
+        </div>
+
+  <!-- coutPrevisionnel -->
+        <div class="p-fluid p-grid">
+          <div class="p-fluid p-col-12 p-md-6">
+              <label for="coutPrevisionnel">Coût Prévisionnel</label>
+              <input id="coutPrevisionnel" name="coutPrevisionnel" #coutPrevisionnel="ngModel" [(ngModel)]="programmation.coutPrevisionnel" pInputText required />
+
+          </div>
+      </div>
+
+
+<!-- diviseur -->
+        <p-divider></p-divider>
+        <div class="p-ml-auto text-right">
+            <button type="reset" label="Annuler" (click)="showDialog=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+            <button type="submit" [disabled]="!dtf.form.valid" label="Enregistrer" icon="pi pi-save" class="p-button-raised p-button-text p-button-primary" pButton>
+                    </button>
+        </div>
+</form>
+</p-dialog>
+
+<app-confirmation></app-confirmation>

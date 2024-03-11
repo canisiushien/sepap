@@ -1,0 +1,175 @@
+<!-- Liste des Agents Table primeNg -->
+<div>
+  <p-card>
+    <!-- ToolBar -->
+    <!-- <app-panel-header header="La liste des agents" icon="fa fa-list fa-3x "> </app-panel-header> -->
+    <!-- <p-divider></p-divider> -->
+    <p-divider></p-divider>
+
+    <p-table #dt [value]="programmationDTOs" styleClass="p-datatable-striped" dataKey="idp" editMode="row" [paginator]="true" [rows]="recordsPerPage"
+    [loading]="isLoading"  [totalRecords]="totalRecords"
+    currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements" [showCurrentPageReport]=true
+    [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm" [globalFilterFields]="['structure.sigle']">
+
+
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="p-fluid p-col-12 col-md-4">
+              <label>Liste des évaluations</label>
+          </div>
+
+             <!-- ------------menu DGESS et ADMIN------------ -->
+
+             <div class="p-fluid p-col-12 col-md-2" [hidden]="btnStruct">
+               <label>Exercice</label>
+               <p-dropdown   optionLabel="debut" inputId="exercice" [options]="exercices" optionValue="id"
+               filterBy="debut" [showClear]="true"  name="exercice" (onChange)="selectExercice($event)" placeholder="Selectionner...">
+               <ng-template let-exercice pTemplate="exercice"> {{exercice.debut | date:'yyyy'}}</ng-template>
+
+              </p-dropdown>
+           </div>
+            <div class="p-fluid p-col-12 col-md-2" [hidden]="btnStruct">
+              <span class="p-input-icon-left">
+                <label for="structure">Structure </label>
+                <p-dropdown  optionLabel="sigle" inputId="structure" [options]="structures" optionValue="id"
+               (onChange)="selectStructure($event)"  name="structure" [filter]="true" filterBy="libelle" [showClear]="true"  placeholder="Selectionner...">
+                </p-dropdown>
+              </span>
+            </div>
+            <div class="p-fluid p-col-12 col-md-2" [hidden]="btnStruct">
+              <label for="searchBtn" style="margin-top: 2px;">Rechercher</label>
+              <p-button inputId="searchBtn" label="Rechercher" icon="pi pi-search" iconPos="right" (click)="load2()">
+              </p-button>
+             </div>
+            <div class="p-fluid p-col-12 col-md-2" [hidden]="btnStruct">
+              <label>Export</label>
+              <button pButton pRipple label="Rapport " icon="pi pi-upload" class="p-button-help"
+              (click)="onExport()"></button>
+            </div>
+
+            <!-- ---------structure-------- -->
+            <div class="p-fluid p-col-12 col-md-2" [hidden]="!btnStruct"></div>
+            <div class="p-fluid p-col-12 col-md-2" [hidden]="!btnStruct">
+             <label>Exercice</label>
+             <p-dropdown   optionLabel="debut" inputId="exercice" [options]="exercices" optionValue="id"
+             filterBy="debut" [showClear]="true"  name="exercice" (onChange)="selectExercice($event)" placeholder="Selectionner...">
+             </p-dropdown>
+         </div>
+         <div class="p-fluid p-col-12 col-md-2" [hidden]="!btnStruct">
+          <label for="searchBtn" style="margin-top: 2px;">Rechercher</label>
+          <p-button inputId="searchBtn" label="Rechercher" icon="pi pi-search" iconPos="right" (click)="load2()">
+          </p-button>
+         </div>
+          <div class="p-fluid p-col-12 col-md-2" [hidden]="!btnStruct">
+            <label>Export</label>
+            <button pButton pRipple label="Rapport" icon="pi pi-upload" class="p-button-help"
+              (click)="onExportStructure()"></button>
+          </div>
+
+
+
+      </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="activite">Activité
+            <p-sortIcon field="activite"></p-sortIcon>
+          </th>
+          <th pSortableColumn="periodes">Périodes
+            <p-sortIcon field="periodes"></p-sortIcon>
+          </th>
+          <th pSortableColumn="periode">P.actuelle
+            <p-sortIcon field="periode"></p-sortIcon>
+          </th>
+          <th pSortableColumn="periode">Taux actuel
+            <p-sortIcon field="periode"></p-sortIcon>
+          </th>
+          <th pSortableColumn="cible">Evaluations
+            <p-sortIcon field="cible"></p-sortIcon>
+          </th>
+          <th pSortableColumn="structure">Structure
+            <p-sortIcon field="structure"></p-sortIcon>
+          </th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <!-- liste des evaluations-->
+      <ng-template pTemplate="body" let-editing="editing" let-ri="rowIndex" let-rowData let-rowIndex="rowIndex" let-programmationDTO>
+      <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pEditableRow]="programmationDTO">
+          <td>{{programmationDTO.activite? programmationDTO.activite.libelle: '-'}} </td>
+          <td>{{programmationDTO.periodes}} </td>
+          <td>{{programmationDTO.periodeActuelle}} </td>
+          <td>{{programmationDTO.tauxActuel}}% </td>
+          <td *ngIf="programmationDTO.tauxActuel < 50">
+            <p-avatar label="~" shape="circle"  size="medium" [style]="{'background-color': '#A44094', 'color': '#ffffff'}"></p-avatar>
+          </td>
+          <td *ngIf="programmationDTO.tauxActuel >= 50 && programmationDTO.tauxActuel < 100">
+            <p-avatar label="~" shape="circle"  size="medium" [style]="{'background-color': '#94A440', 'color': '#ffffff'}"></p-avatar>
+          </td>
+          <td *ngIf="programmationDTO.tauxActuel == 100">
+            <p-avatar label="~" shape="circle"  size="medium" [style]="{'background-color': '#495', 'color': '#ffffff'}"></p-avatar>
+          </td>
+          <td>{{programmationDTO.structure? programmationDTO.structure.sigle: '-'}} </td>
+          <td>
+
+            <app-actions-toolbal-iud  [enableBtnInfo]="enableBtnInfo" (info)="onInfo(programmationDTO)"
+ >
+            </app-actions-toolbal-iud>
+
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <!-- -----PARTIE EXPORT PROGRAMME----------------------- -->
+
+ <p-dialog [(visible)]="showDialogProgramme" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+ [style]="{width: '50vw'}">
+ <div class="p-fluid grid">
+   <div class="p-fluid p-col-12 col-md-12" [hidden]="btnHiddenMinistere">
+     <h6>Choix du ministère</h6>
+     <p-dropdown (onChange)="selectMinistere($event)" optionLabel="libelle" optionValue="id" [options]="ministeres"
+       name="ministere" placeholder="Selectionner...">
+     </p-dropdown>
+   </div>
+
+   <div class="p-fluid p-col-12 col-md-12">
+     <h6>Choix de structure</h6>
+     <p-dropdown (onChange)="selectStructure($event)" optionLabel="libelle" optionValue="id" [options]="structs"
+       name="structure" placeholder="Selectionner...">
+     </p-dropdown>
+   </div>
+
+   <div class="p-fluid p-col-12 col-md-12">
+     <h6>Choix de exercice</h6>
+
+     <p-dropdown (onChange)="selectExercice($event)" optionLabel="debut" optionValue="id" [options]="exercices"
+       name="exercice" placeholder="Selectionner...">
+       <ng-template let-exercice pTemplate="exercice">
+        {{ exercice.debut | date:'yyyy'}}
+      </ng-template>
+     </p-dropdown>
+   </div>
+   <div class="p-fluid p-col-12 col-md-12">
+     <h6>Choisir le format</h6>
+     <p-dropdown (onChange)="selectFormat($event)" optionLabel="name" optionValue="name" [options]="formats"
+       name="format" placeholder="Selectionner...">
+     </p-dropdown>
+   </div>
+ </div>
+
+ <p-divider></p-divider>
+ <div class="p-ml-auto text-right">
+   <button type="reset" label="Annuler" (click)="showDialogProgramme=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+   <button type="submit"  (click)="exportRapportActivites()"  label="Valider" icon="pi pi-save" class="p-button-help" pButton>
+   </button>
+ </div>
+
+
+
+</p-dialog>
+  </p-card>
+
+
+

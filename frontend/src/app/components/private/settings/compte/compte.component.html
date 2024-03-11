@@ -1,0 +1,178 @@
+<p-card>
+  <p-toast>
+  </p-toast>
+  <nb-card-body>
+    <nb-stepper #stepper>
+      <nb-step [stepControl]="firstForm" label="Compte">
+        <form [formGroup]="firstForm" (ngSubmit)="onFirstSubmit()" class="step-container">
+          <nb-card status="primary">
+            <nb-card-header style=" font-size:25px;">Informations sur l'agent</nb-card-header>
+            <p-card>
+              <div class="p-fluid grid">
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="structureId">Structure <span class="text-danger">*</span> </label>
+                  <!-- optionValue="id" -->
+                  <p-dropdown formControlName="structureId" optionLabel="sigle" inputId="structureId"
+                    [options]="structures" [filter]="true" filterBy="libelle" [showClear]="true"
+                    placeholder="Selectionner...">
+                  </p-dropdown>
+                </div>
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="matricule">Matricule <span class="text-danger">*</span></label>
+                  <input nbInput type="text" class="form-control" formControlName="matricule"
+                    [ngClass]="{'form-control-danger': firstForm.invalid && (firstForm.dirty || firstForm.touched)}" />
+                </div>
+
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="nom">Nom <span class="text-danger">*</span></label>
+                  <input nbInput type="text" class="form-control" formControlName="nom"
+                    [ngClass]="{'form-control-danger': firstForm.invalid && (firstForm.dirty || firstForm.touched)}" />
+
+                </div>
+
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="prenom">Prénom(s) <span class="text-danger">*</span></label>
+                  <input nbInput type="text" class="form-control" formControlName="prenom"
+                    [ngClass]="{'form-control-danger': firstForm.invalid && (firstForm.dirty || firstForm.touched)}" />
+
+                </div>
+
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="telephone">Téléphone <span class="text-danger">*</span></label>
+                  <p-inputMask id="telephone" name="telephone" type="tel" formControlName="telephone"
+                    [ngClass]="{'form-control-danger': firstForm.invalid && (firstForm.dirty || firstForm.touched)}"
+                    mask="(+226) 99-99-99-99"></p-inputMask>
+                  <!-- <input nbInput type="telephone" class="form-control"  formControlName="telephone"
+                  [ngClass]="{'form-control-danger': firstForm.invalid && (firstForm.dirty || firstForm.touched)}"> -->
+
+                </div>
+
+
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="email">Email <span class="text-danger">*</span></label>
+                  <input nbInput type="email" class="form-control" formControlName="email"
+                    pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                    [ngClass]="{'form-control-danger': firstForm.invalid && (firstForm.dirty || firstForm.touched)}" />
+
+                </div>
+                <!-- <div class="p-fluid p-col-12 col-md-6">
+                  <label for="password">Mot de passe</label>
+                  <input nbInput type="password" class="form-control"  formControlName="password"
+                  [ngClass]="{'form-control-danger': firstForm.invalid && (firstForm.dirty || firstForm.touched)}" />
+
+                </div> -->
+
+                <div class="p-fluid p-col-12 col-md-6" style="padding: 20px;">
+
+                </div>
+              </div>
+
+            </p-card>
+          </nb-card>
+
+
+          <button nbButton nbStepperNext>Suivant</button>
+
+        </form>
+      </nb-step>
+      <nb-step [stepControl]="secondForm" label="Profils">
+        <form [formGroup]="secondForm" (ngSubmit)="onSecondSubmit()" class="step-container">
+
+          <nb-card status="primary">
+            <nb-card-header style="text-align: center; font-size:25px">Liste des profils</nb-card-header>
+            <p-card>
+              <div class="row">
+                <div class="col-md-3" *ngFor="let profil of profils">
+                  <input id="check" type="checkbox" value="profil.name" name="profiles"
+                    (change)="onselectProfil(profil,$event)" formControlName="profiles" />
+
+                  <label [for]="profil.id">{{profil.name}}</label>
+                </div>
+
+              </div>
+
+            </p-card>
+          </nb-card>
+          <button nbButton nbStepperPrevious>Précédent</button>
+
+          <button nbButton nbStepperNext>Suivant</button>
+
+        </form>
+
+      </nb-step>
+
+
+      <nb-step [stepControl]="thirdForm" label="Confirmation">
+        <form [formGroup]="thirdForm" (ngSubmit)="onThirdSubmit()" class="step-container">
+          <nb-card status="primary">
+            <nb-card-header style="text-align: center;font-size:25px">Confirmation de création de compte
+            </nb-card-header>
+            <p-card>
+              <div class="p-fluid grid">
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="class">Matricule:</label>
+                  <b>{{ firstForm.value["matricule"] }}</b>
+                </div>
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="class">Nom:</label>
+                  <b>{{ firstForm.value["nom"] }}</b>
+                </div>
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="class">Prénom:</label>
+                  <b>{{ firstForm.value["prenom"] }}</b>
+                </div>
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="class">Structure:</label>
+                  <b>{{ firstForm.value["structureId"].sigle }}</b>
+                </div>
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="class">Téléphone:</label>
+                  <b>{{ firstForm.value["telephone"] }}</b>
+                </div>
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="class">Email:</label>
+                  <b>{{ firstForm.value["email"] }}</b>
+                </div>
+              </div>
+
+            </p-card>
+            <nb-card-footer class="foot">
+              <p>Confirmez l'exactitude des données et envoyer le lien de création de mot de passe à {{
+                firstForm.value["email"] }}</p>
+
+            </nb-card-footer>
+          </nb-card>
+
+
+          <button nbButton nbStepperPrevious>Précédent</button>
+
+          <button nbButton nbStepperNext (click)="create()">Confirmer</button>
+
+
+        </form>
+      </nb-step>
+      <nb-step [stepControl]="fourForm" [hidden]="true" label="Succès">
+        <div class="step-container">
+          <nb-card status="success" *ngIf="isSuccessful" [nbSpinner]="loading" nbSpinnerStatus="danger"
+            nbSpinnerSize="large">
+            <nb-card-header>Succès</nb-card-header>
+            <nb-card-body class="text-align-center">
+              Le compte a été créé avec succès!
+              <a routerLink="/workspace/agent">Voir la liste des agents</a>
+            </nb-card-body>
+          </nb-card>
+          <nb-card status="danger" *ngIf="!isSuccessful">
+            <nb-card-header>Erreur de création</nb-card-header>
+            <nb-card-body class="va-m alert alert-danger" role="alert" *ngIf="dialogErrorMessage">
+              <span> {{dialogErrorMessage !}}</span>
+            </nb-card-body>
+          </nb-card>
+        </div>
+      </nb-step>
+
+
+    </nb-stepper>
+  </nb-card-body>
+</p-card>
+<app-confirmation></app-confirmation>
+<!-- Liste des Agents Table primeNg -->

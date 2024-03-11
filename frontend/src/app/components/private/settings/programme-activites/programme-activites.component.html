@@ -1,0 +1,81 @@
+<div>
+
+  <p-card>
+    <!-- ToolBar -->
+
+    <div class="p-d-flex">
+
+        <div class="p-ml-auto">
+            <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+            <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+            </p-progressSpinner>
+        </div>
+    </div>
+    <p-divider></p-divider>
+
+
+    <p-table #dt [value]="programmationDTOs" styleClass="p-datatable-striped" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading" (onLazyLoad)="loadbyStructure($event)" [totalRecords]="totalRecords" [globalFilterFields]="['matricule','nom','prenom','email']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+        [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+
+
+        <ng-template pTemplate="caption">
+          <div class="row">
+              <div class="p-fluid p-col-12 col-md-6">
+                  <label>Liste des programmes validées au CASEM</label>
+              </div>
+              <div class="p-fluid p-col-12 col-md-3">
+            </div>
+
+              <div class="p-fluid p-col-12 col-md-3">
+                <label>Recherche</label>
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+                placeholder="Recherche..." />
+            </div>
+          </div>
+
+      </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="libelle">Programme budgétaire
+                    <p-sortIcon field="libelle"></p-sortIcon>
+                </th>
+                <th pSortableColumn="activite">Activité
+                    <p-sortIcon field="activite"></p-sortIcon>
+                </th>
+                <th pSortableColumn="cible">Cible
+                  <p-sortIcon field="cible"></p-sortIcon>
+                </th>
+                <th pSortableColumn="structure">Structure
+                  <p-sortIcon field="structure"></p-sortIcon>
+                </th>
+                <th pSortableColumn="periode">Période
+                  <p-sortIcon field="periode"></p-sortIcon>
+                </th>
+                <th pSortableColumn="cout_prev">Coût Prévisionnel
+                  <p-sortIcon field="cout_prev"></p-sortIcon>
+                </th>
+
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <!--  LISTE DES PROGRAMMATIONS VALIDEES AU CASEM -->
+        <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-programmationDTO>
+            <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="programmationDTO">
+                <td> {{programmationDTO.projet ? programmationDTO.projet.libelle: '-'}}</td>
+                <td> {{programmationDTO.activite ? programmationDTO.activite.libelle: '-'}}</td>
+                <td> {{programmationDTO.cible}}</td>
+                <td> {{programmationDTO.structure ? programmationDTO.structure.sigle: '-'}}</td>
+                <td> {{programmationDTO.periodes}}</td>
+                <td> {{programmationDTO.coutPrevisionnel}}</td>
+
+                <td>
+                    <app-actions-toolbal-iud (evaluer)="onInfo(programmationDTO)" [enableBtnEval]="enableBtnEvaluer" (edit)="onEdit(structure)" [enableBtnEdit]="enableBtnEdit" (delete)="onDelete(structure)" [enableBtnDelete]="enableBtnDelete">
+                    </app-actions-toolbal-iud>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card>
+
+</div>

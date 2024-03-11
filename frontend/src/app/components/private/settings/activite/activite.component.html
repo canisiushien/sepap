@@ -1,0 +1,179 @@
+
+<p-tabMenu [model]="items" [activeItem]="items[0]"></p-tabMenu>
+<div>
+    <p-card>
+        <!-- ToolBar -->
+        <div class="p-d-flex">
+            <!--app-crud-toolbar [enableCreate]="enableCreate" (create)="onCreate()">
+            </app-crud-toolbar-->
+             <app-crud-pro-bar  *ngIf="authService.checkPermission(this.permissions,['ROLE_FOCAL_STRUCT','ROLE_RESP_STRUCT','ROLE_RESP_DGESS','ROLE_ADMIN'])"  [enableCreate]="enableCreate" (create)="onCreate()" [enablePro]="enablePro" (pro)="onPro()">
+            </app-crud-pro-bar>
+
+            <div class="p-ml-auto">
+                <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+                <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+                </p-progressSpinner>
+            </div>
+        </div>
+        <p-divider></p-divider>
+
+        <p-table #dt [value]="activites" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading"
+            (onLazyLoad)="load($event)" [totalRecords]="totalRecords"
+            [globalFilterFields]="['code','libelle','description', 'objectifStrategique.libelle']"
+            currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+            [showCurrentPageReport]=true  [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+
+            <!-- <p-contextMenu #cm [model]="contextMenuItems"></p-contextMenu>
+    <p-table #dt [value]="agents" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading" (onLazyLoad)="load($event)" [totalRecords]="totalRecords" [globalFilterFields]="['matricule','nom','prenom','email']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+        [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" [(selection)]="selection" selectionMode="single" styleClass="p-datatable-sm" [(contextMenuSelection)]="selection" [contextMenu]="cm"> -->
+
+            <ng-template pTemplate="caption">
+                <div class="row">
+                    <div class="col" style="padding: 8px; margin-left: 8px">
+                        <span>Liste des activités</span>
+                    </div>
+                    <div class="col text-right">
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text"
+                                (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+                                placeholder="Recherche..." />
+                        </span>
+                    </div>
+                </div>
+
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr>
+                  <th pSortableColumn="code">code
+                    <p-sortIcon field="code"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="libelle">libéllé
+                    <p-sortIcon field="libelle"></p-sortIcon>
+                  </th>
+                    <th pSortableColumn="description">Description
+                        <p-sortIcon field="description"></p-sortIcon>
+                    </th>
+                    <!-- <th pSortableColumn="status">Statut
+                        <p-sortIcon field="status"></p-sortIcon>
+                    </th> -->
+                    <th style="width: 15%">Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-activite>
+                <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="activite">
+                    <td>{{activite.code}} </td>
+                    <td>{{activite.libelle}} </td>
+                    <td>{{activite.description}} </td>
+                    <!-- <td>{{activite.status}} </td> -->
+                    <td style="width: 15%">
+
+                        <app-actions-toolbal-iud (info)="onInfo(activite)" [enableBtnInfo]="enableBtnInfo"
+                            (edit)="onEdit(activite)" [enableBtnEdit]="enableBtnEdit" (delete)="onDelete(activite)"
+                            [enableBtnDelete]="enableBtnDelete">
+                        </app-actions-toolbal-iud>
+
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-card>
+
+    <!-- Dialog-->
+    <p-dialog [(visible)]="showDialog" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+        [style]="{width: '50vw'}">
+        <ng-template pTemplate="header">
+            <i class="{{isEditing() ? 'pi-pencil' : 'pi-plus'}} pi p-mr-1"></i>
+            <span class="mr-auto">
+                {{activite.id ? 'Modifier' : 'Ajouter'}} une activité
+            </span>
+        </ng-template>
+        <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+        <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+        <p-divider></p-divider>
+        <!-- Form -->
+        <form (ngSubmit)="save()" #dtf="ngForm">
+
+
+            <div class="p-fluid grid">
+
+                <div class="p-fluid p-col-12 col-md-12">
+                    <label for="typeActivites">Type d'activité </label>
+                    <p-dropdown [(ngModel)]="activite.typeActivites" optionLabel="libelle" inputId="typeActivites"
+                        [options]="typeActivites" name="typeActivites" [filter]="true" filterBy="libelle" [showClear]="true" placeholder="Selectionner...">
+                    </p-dropdown>
+                </div>
+
+                <div class="p-fluid p-col-12 col-md-12">
+                    <label for="libelle">Libéllé</label>
+
+                    <input id="libelle" name="libelle" #libelle="ngModel" [(ngModel)]="activite.libelle" pInputText
+                        required />
+                    <div class="p-error"
+                        *ngIf="libelle.invalid && (libelle.dirty || libelle.touched) && libelle.errors">
+                        <span>Veillez renseigner le libéllé</span>
+                    </div>
+
+
+                </div>
+
+                <div class="p-fluid p-col-12 col-md-12">
+                    <label for="description">Description</label>
+                    <input id="description" name="description" #description="ngModel"
+                        [(ngModel)]="activite.description" pInputText/>
+
+                </div>
+
+            </div>
+
+
+            <p-divider></p-divider>
+            <div class="p-ml-auto text-right">
+                <button type="reset" label="Annuler" (click)="showDialog=false"
+                    class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+                <button type="submit" [disabled]="!dtf.form.valid" label="{{isEditing() ? 'Enregistrer' : 'Ajouter'}}"
+                    icon="pi {{isEditing() ? 'pi-save' : 'pi-plus'}}"
+                    class="p-button-raised p-button-text {{isEditing() ? 'p-button-primary' : 'p-button-success'}}"
+                    pButton>
+                </button>
+            </div>
+        </form>
+    </p-dialog>
+
+    <!-- DETAILS ACTIVITE -->
+
+  <p-dialog [(visible)]="detailDialog" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+      <ng-template pTemplate="header">
+
+        <span class="p-mr-auto"> DETAILS ACTIVITE</span>
+      </ng-template>
+        <div class="row">
+             <div class="col-md-6">
+               <ul class="list-group list-group-flush">
+                <li class="list-group-item list-group-item-action">
+                    <span class="va-m"><span class="font-weight-bold">Code:</span>  {{activite.code}}</span>
+                  </li>
+                 <li class="list-group-item list-group-item-action">
+                   <span class="va-m"><span class="font-weight-bold">Type:</span>  {{activite.typeActivites?.libelle }}</span>
+                 </li>
+               </ul>
+            </div>
+            <div class="col-md-6">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item list-group-item-action">
+                 <span class="va-m"><span class="font-weight-bold"> Libéllé:</span>  {{activite.libelle}}</span>
+               </li>
+              </ul>
+           </div>
+        </div>
+         <p-divider></p-divider>
+         <div class="p-ml-auto text-right">
+             <button description="reset" label="Fermer" (click)="detailDialog=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+
+         </div>
+      </p-dialog>
+
+    <!-- Confirmation -->
+    <app-confirmation></app-confirmation>
+</div>

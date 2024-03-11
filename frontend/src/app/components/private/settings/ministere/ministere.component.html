@@ -1,0 +1,155 @@
+<div>
+  <p-card>
+    <!-- ToolBar -->
+
+    <div class="p-d-flex">
+        <app-crud-toolbar *ngIf="authService.checkPermission(this.permissions, ['ROLE_ADMIN', 'ROLE_RESP_DGESS'])" [enableCreate]="enableCreate"  (create)="onCreate()" >
+        </app-crud-toolbar>
+        <div class="p-ml-auto">
+            <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+            <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+            </p-progressSpinner>
+        </div>
+    </div>
+    <p-divider></p-divider>
+
+    <p-table #dt [value]="ministeres" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading" (onLazyLoad)="load($event)" [totalRecords]="totalRecords" [globalFilterFields]="['libelle','code','sigle']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+        [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+
+
+
+    <ng-template pTemplate="caption">
+      <div class="row">
+          <div class="col" style="padding: 8px; margin-left: 8px">
+              <span>Liste des ministères</span>
+          </div>
+          <div class="col text-right">
+              <span class="p-input-icon-left">
+                  <i class="pi pi-search"></i>
+                  <input pInputText type="text" (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+                  placeholder="Recherche..." />
+              </span>
+          </div>
+      </div>
+
+  </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="code">code
+                    <p-sortIcon field="code"></p-sortIcon>
+                </th>
+                <th pSortableColumn="libelle">Libéllé
+                    <p-sortIcon field="libelle"></p-sortIcon>
+                </th>
+                <th pSortableColumn="sigle">Sigle
+                    <p-sortIcon field="sigle"></p-sortIcon>
+                </th>
+
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-ministere>
+            <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="ministere">
+                <td>{{ministere.code}} </td>
+                <td>{{ministere.libelle}} </td>
+                <td>{{ministere.sigle}} </td>
+
+                <td>
+
+                    <app-actions-toolbal-iud (info)="onInfo(ministere)" [enableBtnInfo]="enableBtnInfo" (edit)="onEdit(ministere)" [enableBtnEdit]="enableBtnEdit" (delete)="onDelete(ministere)" [enableBtnDelete]="enableBtnDelete">
+                    </app-actions-toolbal-iud>
+
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card>
+
+    <!-- Dialog-->
+    <p-dialog [(visible)]="showDialog" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+      <ng-template pTemplate="header">
+          <i class="{{isEditing() ? 'pi-pencil' : 'pi-plus'}} pi p-mr-1"></i>
+          <span class="mr-auto">
+      {{ministere.id ? 'Modifier un' : 'Ajouter un nouveau'}}  ministère
+  </span>
+      </ng-template>
+      <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+      <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+      <p-divider></p-divider>
+<!-- Form -->
+      <form (ngSubmit)="save()" #dtf="ngForm">
+
+
+
+
+ <!-- code -->
+          <div class="p-fluid p-grid">
+              <div class="p-fluid p-col-12 p-md-6">
+                  <label for="code">Code</label>
+                  <input id="code" name="code" #code="ngModel" [(ngModel)]="ministere.code" pInputText required />
+
+              </div>
+          </div>
+  <!-- libelle -->
+          <div class="p-fluid p-grid">
+              <div class="p-fluid p-col-12 p-md-6">
+                  <label for="libelle">Libéllé</label>
+                  <input id="libelle" name="libelle" #libelle="ngModel" [(ngModel)]="ministere.libelle" pInputText required />
+
+              </div>
+          </div>
+
+<!-- sigle -->
+          <div class="p-fluid p-grid">
+              <div class="p-fluid p-col-12 p-md-6">
+                  <label for="sigle">Sigle</label>
+                  <input id="sigle" name="sigle" #sigle="ngModel" [(ngModel)]="ministere.sigle" pInputText required />
+
+              </div>
+          </div>
+
+
+
+<!-- diviseur -->
+          <p-divider></p-divider>
+          <div class="p-ml-auto text-right">
+              <button type="reset" label="Annuler" (click)="showDialog=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+              <button type="submit" [disabled]="!dtf.form.valid" label="{{isEditing() ? 'Enregistrer' : 'Ajouter'}}" icon="pi {{isEditing() ? 'pi-save' : 'pi-plus'}}" class="p-button-raised p-button-text {{isEditing() ? 'p-button-primary' : 'p-button-success'}}" pButton>
+                      </button>
+          </div>
+      </form>
+  </p-dialog>
+  <!-- Confirmation -->
+  <app-confirmation></app-confirmation>
+
+  <!-- details ministeres -->
+  <p-dialog [(visible)]="ministereDetail" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+    <ng-template pTemplate="header">
+
+      <span class="p-mr-auto"> DETAILS MINISTERE</span>
+    </ng-template>
+    <div class="row">
+      <div class="col-md-12">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item list-group-item-action">
+            <span class="va-m"><span class="font-weight-bold">Code:</span>  {{ministere.code}}</span>
+          </li>
+          <li class="list-group-item list-group-item-action">
+            <span class="va-m"><span class="font-weight-bold">Sigle:</span>  {{ministere.sigle}}</span>
+          </li>
+          <li class="list-group-item list-group-item-action">
+           <span class="va-m"><span class="font-weight-bold"> Libéllé:</span>  {{ministere.libelle}}</span>
+         </li>
+
+        </ul>
+     </div>
+
+ </div>
+ <p-divider></p-divider>
+ <div class="p-ml-auto text-right">
+     <button description="reset" label="Fermer" (click)="ministereDetail=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+
+ </div>
+    </p-dialog>
+</div>

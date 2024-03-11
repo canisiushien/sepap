@@ -1,0 +1,157 @@
+server:
+  port: 8089
+  servlet:
+    context-path: /dgess
+application:
+  name: dgess
+  security:
+    authentication:
+      jwt:
+        # CHANGER APRES LA VALEUR DU BASE64-SECRET
+        base64-secret: YmYwMThjYmY1NDVhODRmMTE3MTdlYjY5N2IyYjAwYTU5ZjYzNTdhNDNmOWE3ODE3ODk2ZTJiNzRkYmI1ZGY0NTI2NDc3MjMwOGQwOTAyZDUwNWQ1ZDU0ZWFiZjRjNTY4YTE5YmQ3MDBmMzFjM2NmNzc2NGQ2NjBmN2Y1YTdjOWE=
+        # Token is valid 24 hours
+        token-validity-in-seconds: 86400
+        token-validity-in-seconds-for-remember-me: 2592000
+  mail:
+#commenté pour integrer le mailer Gmail car fin d'abonnement de amazon
+#    from: plainte.support@fonction-publique.gov.bf
+#    base-url: http://localhost:4200
+    from: devstgvap@gmail.com
+    base-url: http://localhost:4200
+  cache: # Cache configuration
+    ehcache: # Ehcache configuration
+      time-to-live-seconds: 3600 # By default objects stay 1 hour in the cache
+      max-entries: 100 # Number of objects in each cache entry
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  data:
+    web:
+      pageable:
+        default-page-size: 2000         # Default page size.
+        #max-page-size: 2000           # Maximum
+    jpa:
+      repositories:
+        bootstrap-mode: deferred
+
+  liquibase:
+    change-log: classpath:config/liquibase/master.xml
+#commenté pour integrer le mailer Gmail car fin d'abonnement de amazon
+  mail:
+#    host: email-smtp.eu-west-1.amazonaws.com
+#    port: 587
+#    username: AKIASHLP5WJRJ5U2XDJS
+#    password: BDxLBdCYYNRgnmhZ3ZCT6pQllX/W4NNNhJpEghPHz3nj
+#    protocol: smtp
+#    tls: true
+#    properties.mail.smtp:
+#      auth: true
+#      starttls.enable: true
+#      ssl.trust: email-smtp.eu-west-1.amazonaws.com
+    protocol: smtp
+    host: smtp.gmail.com
+    port: 587
+    username: devstgvap@gmail.com
+    password: vbrvlbsmzxaeupqv
+    test-connection: false
+    properties.mail.smtp:
+      ssl:
+      trust: smtp.gmail.com
+      auth: true
+      starttls:
+        enable: true
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        javax:
+          cache:
+            missing_cache_strategy: create
+      hibernate.jdbc.time_zone: UTC
+      hibernate.id.new_generator_mappings: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.cache.use_second_level_cache: true
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: false
+      hibernate.jdbc.batch_size: 25
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+      hibernate.query.fail_on_pagination_over_collection_fetch: true
+      hibernate.query.in_clause_parameter_padding: true
+    hibernate:
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+
+---
+logging:
+  level:
+    ROOT: INFO
+    com.mfptps.appdgessddi: DEBUG
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        show_sql: false
+    hibernate.ddl-auto: update
+  profiles:
+    active: dev
+  devtools:
+    restart:
+      enabled: true
+      additional-exclude: .h2.server.properties
+    livereload:
+      enabled: true
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://localhost:5432/dgessdb-matds
+    username: postgres
+    password: admin
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+#  h2:
+#    console:
+#      enable: true
+#      path: /h2-console
+
+---
+logging:
+  level:
+    ROOT: INFO
+    com.mfptps.appdgessddi: INFO
+  
+spring:
+  config:
+    activate:
+      on-profile: prod
+  main:
+    banner-mode: off
+  jpa:
+    hibernate.ddl-auto: update
+    show-sql: false
+    database: postgresql
+  # spring.jpa.hibernate.ddl-auto=create
+  datasource:
+    initialization-mode: always
+    platform: postgres
+    url: jdbc:postgresql:localhost:5432/dgessdb
+    username: postgres
+    password: rootPostgresql #rootPostgresql admin
+    hikari:
+      auto-commit: false

@@ -1,0 +1,26 @@
+[
+    {"id":1, "code": 1, "libelle": "op1", "description": "op description1",
+        "action": {
+            "id":1, 
+            "code": 1, 
+            "libelle": "action1",
+            "description": "action description1"
+            }   
+    },
+    {"id":2, "code": 2, "libelle": "op2", "description": "op description2",
+        "action": {
+            "id":1, 
+            "code": 1, 
+            "libelle": "action1",
+            "description": "action description1"
+            }   
+    },
+    {"id":3, "code": 3, "libelle": "op3", "description": "op description3",
+        "action": {
+            "id":2, 
+            "code": 2, 
+            "libelle": "action2",
+            "description": "action description2"
+            }   
+    }
+]

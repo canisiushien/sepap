@@ -1,0 +1,156 @@
+<div>
+
+  <p-card>
+    <!-- ToolBar -->
+    <div class="p-d-flex">
+        <button type="reset" label="Ajouter" (click)="onCreate()" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+        <div class="p-ml-auto">
+            <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+            <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+            </p-progressSpinner>
+        </div>
+    </div>
+    <p-divider></p-divider>
+
+    <p-table #dt [value]="parametreImpacts" [paginator]="true" [rows]="recordsPerPage" (onLazyLoad)="load($event)" [loading]="isLoading"  [totalRecords]="totalRecords" [globalFilterFields]="['code','libelle','description', 'objectifStrategique.libelle']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+        [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+
+        <ng-template pTemplate="caption">
+            <div class="row">
+                <div  class="p-fluid p-col-12 col-md-4">
+                    <span>Liste des paramètres</span>
+                </div>
+                <div class="p-fluid p-col-12 col-md-2">
+                    <span class="p-input-icon-left"><label class="mr-2">Ministère </label>
+                    <p-dropdown  optionLabel="libelle" inputId="ministere" [options]="ministeres" (onChange)="selectMinistere($event)" optionValue="id"
+                     name="ministere" [filter]="true" filterBy="sigle" [showClear]="true"  placeholder="Selectionner...">
+                    </p-dropdown>
+                  </span>
+                </div>
+
+                <div class="p-fluid p-col-12 col-md-2">
+                    <span class="p-input-icon-left"><label >Exercice </label>
+                    <p-dropdown  optionLabel="debut" inputId="exercice" [options]="exercices"  optionValue="id" (onChange)="selectExercice($event)"
+                     name="exercice" [filter]="true" filterBy="debut" [showClear]="true"  placeholder="Selectionner...">
+                     <ng-template let-exercice  pTemplate="exercice">
+                      {{exercice.debut | date:'yyyy'}}
+                     </ng-template>
+
+                    </p-dropdown>
+
+                    </span>
+                </div>
+
+                <div class="p-fluid p-col-12 col-md-2">
+                  <label for="searchBtn" style="margin-top: 2px;">Rechercher</label>
+                  <p-button inputId="searchBtn" (click)="load()" label="Rechercher" icon="pi pi-search" iconPos="right" >
+                  </p-button>
+                 </div>
+                <div class="p-fluid p-col-12 col-md-2">
+                    <span>
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+                        placeholder="Recherche..." />
+                    </span>
+                </div>
+            </div>
+
+        </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="code">Ministère
+                <p-sortIcon field="code"></p-sortIcon>
+                </th>
+                <th pSortableColumn="exercice.debut">Exercice
+                    <p-sortIcon field="exercice"></p-sortIcon>
+                </th>
+
+                <th pSortableColumn="impact.indicateur">Impact
+                    <p-sortIcon field="impact"></p-sortIcon>
+                </th>
+                <th pSortableColumn="impact.valeurReference">Valeur Reférence
+                  <p-sortIcon field="impact"></p-sortIcon>
+              </th>
+              <th pSortableColumn="impact.valeurAtteinte">Valeur Atteinte
+                <p-sortIcon field="impact"></p-sortIcon>
+            </th>
+            <th style="width: 15%">Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-parametreImpact>
+            <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="parametreImpact">
+                <td>{{parametreImpact.impact ? parametreImpact.impact.ministere.sigle :'-'}} </td>
+                <td>{{parametreImpact.exercice ? parametreImpact.exercice.debut :'-'}} </td>
+                <td>{{parametreImpact.impact ? parametreImpact.impact.libelle :'-'}} </td>
+                <td>{{parametreImpact.valeurReference}}</td>
+                <td>{{parametreImpact.valeurAtteinte}}</td>
+                <td style="width: 15%">
+
+                    <app-actions-toolbal-iud (info)="onInfo(parametreImpact)" [enableBtnInfo]="enableBtnInfo" (edit)="onEdit(parametreImpact)" [enableBtnEdit]="enableBtnEdit" (delete)="null" [enableBtnDelete]="enableBtnDelete">
+                    </app-actions-toolbal-iud>
+
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card>
+
+<p-dialog [(visible)]="showDialog" [modal]="true" [maximizable]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+  <ng-template pTemplate="header">
+      <i class="{{isEditing() ? 'pi-pencil' : 'pi-plus'}} pi p-mr-1"></i>
+      <span class="mr-auto"> {{parametreImpact.id ? 'Modifier' : 'Ajouter'}} les paramètres d'évaluation
+</span>
+  </ng-template>
+  <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+  <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+  <!-- Form -->
+  <form (ngSubmit)="save()" #dtf="ngForm">
+      <div class="p-fluid grid">
+          <div class="p-fluid p-col-12 col-md-12">
+              <label for="ministere" >Ministère</label>
+              <p-dropdown [options]="ministeres" (onChange)="changeMinistere($event)"
+              name="ministere" placeholder="Selectionner un ministère" optionLabel="libelle"
+               inputId="ministere" [filter]="true" filterBy="libelle" [showClear]="true"></p-dropdown>
+          </div>
+          <div class="p-fluid p-col-12 col-md-12">
+              <label for="libelle">Impact</label>
+              <p-dropdown [options]="impacts" [(ngModel)]="parametreImpact.impact" name="impact"
+               placeholder="Selectionner un impact" optionLabel="libelle" inputId="impact"
+               [filter]="true" filterBy="libelle" [showClear]="true"></p-dropdown>
+          </div>
+          <div class="p-fluid p-col-12 col-md-12">
+              <label for="exercice">Exercice</label>
+              <p-dropdown [options]="exercices" [(ngModel)]="parametreImpact.exercice" name="exercice"
+              placeholder="Selectionner un exercice" optionLabel="debut" inputId="exercice"
+              [filter]="true" filterBy="debut" [showClear]="true">
+                <ng-template let-exercice  pTemplate="exercice">
+                    {{exercice.debut | date:'yyyy'}}
+                   </ng-template>
+              </p-dropdown>
+
+          </div>
+      <div class="p-fluid p-col-12 col-md-6">
+          <label for="description">Cible</label>
+          <input id="cible" name="cible" #cible="ngModel" [(ngModel)]="parametreImpact.cible" pInputText required />
+      </div>
+        <div class="p-fluid p-col-12 col-md-6">
+            <label for="description">Valeur Atteinte</label>
+            <input id="valeurAtteinte" name="valeurAtteinte" #valeurAtteinte="ngModel" [(ngModel)]="parametreImpact.valeurAtteinte" pInputText readonly />
+        </div>
+      <div class="p-fluid p-col-12 col-md-6">
+          <label for="description">Valeur Reférence</label>
+          <input id="valeurReference" name="valeurReference" #valeurReference="ngModel" [(ngModel)]="parametreImpact.valeurReference" pInputText required />
+      </div>
+  </div>
+
+      <p-divider></p-divider>
+      <div class="p-ml-auto text-right">
+          <button type="reset" label="Annuler" (click)="showDialog=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+          <button type="submit" [disabled]="!dtf.form.valid" label="{{isEditing() ? 'Enregistrer' : 'Ajouter'}}" icon="pi {{isEditing() ? 'pi-save' : 'pi-plus'}}" class="p-button-raised p-button-text {{isEditing() ? 'p-button-primary' : 'p-button-success'}}" pButton>
+                  </button>
+      </div>
+  </form>
+</p-dialog>
+</div>
+

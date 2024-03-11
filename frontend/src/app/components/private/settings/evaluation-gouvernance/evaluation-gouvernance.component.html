@@ -1,0 +1,142 @@
+<!--Tab menu affiche de critères-->
+<p-tabMenu [model]="items" [activeItem]="items[0]"></p-tabMenu>
+<p-card>
+  <p-toast>
+  </p-toast>
+  <nb-card-body>
+    <nb-stepper #stepper>
+      <nb-step [stepControl]="firstForm" label="Structure">
+        <form [formGroup]="firstForm" (ngSubmit)="onFirstSubmit()" class="step-container">
+          <nb-card status="primary">
+            <nb-card-header>Données de la structure</nb-card-header>
+            <p-card>
+              <div class="p-fluid grid">
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="structureId">Structure <span class="text-danger">*</span> </label>
+                  <p-dropdown formControlName="structureId" optionLabel="sigle" inputId="id"
+                    [options]="structures" [filter]="true" filterBy="libelle" [showClear]="true"
+                    placeholder="Selectionner...">
+                  </p-dropdown>
+                </div>
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="exercice">Exercice <span class="text-danger">*</span> </label>
+                  <p-dropdown formControlName="exerciceId" optionLabel="debut" inputId="id"
+                    [options]="exercices" name="exerciceId" [filter]="true" filterBy="debut" [showClear]="true"
+                    placeholder="Selectionner..." [required]= "true">
+                    <ng-template let-exercice  pTemplate="exercice">
+                      {{exercice.debut | date:'yyyy'}}
+                     </ng-template>                    
+                  </p-dropdown>
+                </div>
+
+              </div>
+
+            </p-card>
+          </nb-card>
+          <button nbButton nbStepperNext>Suivant</button>
+        </form>
+      </nb-step>
+      <nb-step [stepControl]="secondForm" label="Critères">
+        <form [formGroup]="secondForm" (ngSubmit)="onSecondSubmit()" class="step-container">
+          <nb-card status="primary">
+            <nb-card-header>Liste des critères</nb-card-header>
+            <nb-card-body>
+              <p-table #dt [value]="criteres" [paginator]="true" [rows]="recordsPerPage" [totalRecords]="totalRecords"
+              currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements" [showCurrentPageReport]="true"
+              [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Indicateur</th>
+                  <th>Mode</th>
+                  <th>Actif</th>
+                  <th>Applicable</th>
+                  <th>Valeur de reference</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-criteres[rowIndex]>
+
+                <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex">
+                  <td> {{criteres[rowIndex].indicateur}}</td>
+                  <td> {{criteres[rowIndex].mode == true ? 'Oui':'Non'}}</td>
+                  <td> {{criteres[rowIndex].actif == true ? 'Oui':'Non'}}</td>
+                  <td> <input type="checkbox" name="checked" 
+                      [(ngModel)]="criteres[rowIndex].nonapplicable" formControlName="nonapplicable" (change)="getCheckedNonapplicable(rowIndex)" />
+                  </td>
+                  <td><input type="number" formControlName="valeurReference" [hidden]="criteres[rowIndex].mode" name="valeurReference{{rowIndex}}" id="valeurReference" [(ngModel)]="criteres[rowIndex].valeurReference"> </td>
+                </tr>
+              </ng-template>
+            </p-table>
+            </nb-card-body>
+          </nb-card>
+              <button nbButton nbStepperPrevious>Précédent</button>
+              <button nbButton nbStepperNext [disabled]="btn" (click)="critereApplicable()" (click)="critereApplicable()">Suivant</button>
+        </form>
+      </nb-step>
+      <nb-step [stepControl]="thirdForm" label="Confirmation">
+        <form [formGroup]="thirdForm" (ngSubmit)="onThirdSubmit()" class="step-container">
+          <nb-card status="primary">
+            <nb-card-header>Confirmation de l'application des critères
+            </nb-card-header>
+            <nb-card-body>
+              <p-table #dt [value]="criteresLists" [paginator]="true" [rows]="recordsPerPage" [totalRecords]="totalRecords"
+              currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements" [showCurrentPageReport]="true"
+              [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Indicateur</th>
+                  <th>Mode</th>
+                  <th>Actif</th>
+                  <th>Applicable</th>
+                  <th>Valeur de reference</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-rowData  let-criteresList>
+
+                <tr [pSelectableRow]="rowData">
+                  <td> {{criteresList.indicateur}}</td>
+                  <td> {{criteresList.mode == true ? 'Oui':'Non'}}</td>
+                  <td> {{criteresList.actif == true ? 'Oui':'Non'}}</td>
+                  <td>{{!criteresList.nonapplicable == true ? 'Oui':'Non'}}</td>
+                  <td>{{criteresList.valeurReference}}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+
+            </nb-card-body>
+            <nb-card-footer class="foot">
+              <p>Confirmez l'exactitude des données </p>
+
+            </nb-card-footer>
+          </nb-card>
+              <button nbButton nbStepperPrevious>Précédent</button>
+            
+              <button nbButton nbStepperNext (click)="create()">Confirmer</button>
+        </form>
+      </nb-step>
+      <nb-step [stepControl]="fourForm" [hidden]="true" label="Succès">
+        <div class="step-container">
+          <nb-card status="success" *ngIf="isSuccessful" [nbSpinner]="loading" nbSpinnerStatus="danger"
+            nbSpinnerSize="large">
+            <nb-card-header>Succès</nb-card-header>
+            <nb-card-body class="text-align-center">
+             Les critères ont été validé avec succès!
+              <a routerLink="/workspace/performances/mes-criteres-gouvernance">Voir la liste de mes critères</a>
+            </nb-card-body>
+          </nb-card>
+          <nb-card status="info" *ngIf="!isSuccessful">
+            <nb-card-header>Erreur de validation</nb-card-header>
+            <nb-card-body class="va-m alert alert-danger" role="alert" *ngIf="dialogErrorMessage">
+              <span> {{dialogErrorMessage !}}</span>
+            </nb-card-body>
+          </nb-card>
+        </div>
+      </nb-step>
+
+
+    </nb-stepper>
+  </nb-card-body>
+</p-card>
+<app-confirmation></app-confirmation>
+<!-- Liste des Agents Table primeNg -->

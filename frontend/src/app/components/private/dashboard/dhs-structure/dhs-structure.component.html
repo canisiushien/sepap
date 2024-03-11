@@ -1,0 +1,165 @@
+<div class="row">
+    <div class="col-13 col-lg-4">
+        <div class="card radius-15 bg-primary-blue">
+            <div class="card-body" style="text-align: center">
+                <h5>Ministère concerné</h5>
+                <h6>{{ministereBundle?.ministereCode}}</h6>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-13 col-lg-4">
+        <div class="card radius-15 bg-rose">
+            <div class="card-body" style="text-align: center">
+                <h5>Périodicité : {{ministereBundle?.periodicite}}</h5>
+                <h6>Période concernée : {{ministereBundle?.periode}}</h6>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-13 col-lg-4">
+        <div class="card radius-15 bg-sunset">
+            <div class="card-body" style="text-align: center">
+                <h5>Date concernée</h5>
+                <h6>{{ministereBundle?.dateJour}}</h6>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div [hidden]="show" class="row">
+    <div class="col-12 col-lg-12">
+      <p-fieldset [toggleable]="false" [transitionOptions]="'0ms'" class="text-center">
+        <ng-template pTemplate="header">Export des projets de rapports et programmes d'activités </ng-template>
+
+          <button pButton pRipple label="Exporter un projet de rapport" icon="pi pi-upload" class="p-button-help"
+          (click)="onExportRapport()" style="margin-right: 40px;"></button>
+
+          <button pButton pRipple label="Exporter un projet de programme" icon="pi pi-upload" class="p-button-help"
+          (click)="onExportProgramme()"></button>
+
+      </p-fieldset>
+    </div>
+  </div>
+<!-- Boites de dialog pour exporter les données-->
+<div>
+<p-dialog [(visible)]="showDialogProgramme" [closable]="false" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+      [style]="{width: '60vw'}" header="Choisissez les options pour exporter le programme ou projet de programme">
+
+      <div class="p-fluid grid">
+        <div class="p-fluid p-col-12 col-md-12" [hidden]="btnHiddenMinistere">
+          <h6>Choix du ministère</h6>
+          <p-dropdown (onChange)="selectMinistere($event)" optionLabel="libelle" optionValue="id" [options]="ministeres"
+          [filter]="true" filterBy="libelle" [showClear]="true"   name="ministere" placeholder="Selectionner...">
+          </p-dropdown>
+        </div>
+
+        <div class="p-fluid p-col-12 col-md-12">
+          <h6>Choix de structure</h6>
+          <p-dropdown (onChange)="selectStructure($event)" optionLabel="libelle" optionValue="id" [options]="structures"
+          [filter]="true" filterBy="libelle" [showClear]="true"   name="structure" placeholder="Selectionner...">
+          </p-dropdown>
+        </div>
+
+        <div class="p-fluid p-col-12 col-md-12">
+          <h6>Choix de exercice</h6>
+          <p-dropdown (onChange)="selectExercice($event)" optionLabel="debut" optionValue="id" [options]="exercices"
+          [filter]="true" filterBy="debut" [showClear]="true" name="exercice" placeholder="Selectionner...">
+          <ng-template let-exercice pTemplate="exercice">
+            {{ exercice.debut | date:'yyyy'}}
+          </ng-template>
+          </p-dropdown>
+        </div>
+        <div class="p-fluid p-col-12 col-md-12">
+          <h6>Choisir le format</h6>
+          <p-dropdown (onChange)="selectFormat($event)" optionLabel="name" optionValue="name" [options]="formats"
+            name="format" placeholder="Selectionner...">
+          </p-dropdown>
+        </div>
+      </div>
+      <p-divider></p-divider>
+      <br>
+      <div class="p-ml-auto text-right" style="margin-top: 10px; padding: 30px;">
+        <button type="reset" label="Annuler" (click)="showDialogProgramme=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+        <button type="submit"  (click)="exportProgrammeActivites()"  label="Valider" icon="pi pi-save" class="p-button-help" pButton>
+        </button>
+      </div>
+    </p-dialog>
+    <!--export du rapport d'activités-->
+    <p-dialog [(visible)]="showDialogRapport" [closable]="false" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+    [style]="{width: '50vw'}"  header="Choisissez les options pour exporter le projet de rapport d'activité">
+    <div class="p-fluid grid">
+      <div class="p-fluid p-col-12 col-md-12" [hidden]="btnHiddenMinistere">
+        <h6>Choix du ministère</h6>
+        <p-dropdown (onChange)="selectMinistere($event)" optionLabel="libelle" optionValue="id" [options]="ministeres"
+        [filter]="true" filterBy="libelle" [showClear]="true"   name="ministere" placeholder="Selectionner...">
+        </p-dropdown>
+      </div>
+
+      <div class="p-fluid p-col-12 col-md-12">
+        <h6>Choix de structure</h6>
+        <p-dropdown (onChange)="selectStructure($event)" optionLabel="libelle" optionValue="id" [options]="structures"
+        [filter]="true" filterBy="libelle" [showClear]="true"  name="structure" placeholder="Selectionner...">
+        </p-dropdown>
+      </div>
+
+      <div class="p-fluid p-col-12 col-md-12">
+        <h6>Choix de exercice</h6>
+        <p-dropdown (onChange)="selectExercice($event)" optionLabel="debut" optionValue="id" [options]="rapp_exercices"
+        [filter]="true" filterBy="debut" [showClear]="true" name="exercice" placeholder="Selectionner...">
+          <ng-template let-rapp_exercice pTemplate="rapp_exercice">
+            {{ rapp_exercice.debut | date:'yyyy'}}
+          </ng-template>
+        </p-dropdown>
+      </div>
+
+      <div class="p-fluid p-col-12 col-md-12">
+        <h6>Choisir la période souhaitée</h6>
+        <p-dropdown (onChange)="selectPeriode($event)" optionLabel="libelle" optionValue="id" [options]="periodes"
+          name="period" placeholder="Selectionner...">
+        </p-dropdown>
+      </div>
+
+      <div class="p-fluid p-col-12 col-md-12">
+        <h6>Choisir le format</h6>
+        <p-dropdown (onChange)="selectFormat($event)" optionLabel="name" optionValue="name" [options]="formats"
+          name="format" placeholder="Selectionner...">
+        </p-dropdown>
+      </div>
+    </div>
+
+    <p-divider></p-divider>
+    <div class="p-ml-auto text-right" style="margin-top: 10px; padding: 30px;">
+      <button type="reset" label="Annuler" (click)="showDialogRapport=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+      <button type="submit"  (click)="exportRapportActivites()"  label="Valider" icon="pi pi-save" class="p-button-help" pButton>
+      </button>
+    </div>
+  </p-dialog>
+
+</div>
+<div [hidden]="!show" class="row" style="text-align: center">
+    <div class="col-s-12 col-lg-12">
+        <h6 style="margin-top: 10px; margin-bottom: 10px;">Etat des exécutions des activités et de leur budget à la date du {{ministereBundle?.dateJour}}</h6>
+    </div>
+    <div class="col-s-5 col-lg-6">
+        <p-card>
+            <p-chart type="pie" [data]="activitesData" [options]="basicOptions"></p-chart>
+        </p-card>
+    </div>
+    <div class="col-s-5 col-lg-6">
+        <p-card>
+            <p-chart type="pie" [data]="depensesData" [options]="basicOptions"></p-chart>
+        </p-card>
+    </div>
+</div>
+
+<div [hidden]="!show" class="row" style="text-align: center">
+    <div class="col-11 col-lg-12">
+        <br>
+        <h6 style="margin-top: 10px; margin-bottom: 10px;">Evolution de l'exécution des activités par structure du ministère</h6>
+        <br>
+        <p-card>
+            <p-chart type="bar" [data]="stackedData" [options]="stackedOptions"></p-chart>
+        </p-card>
+    </div>
+</div>

@@ -1,0 +1,93 @@
+<!-- Liste des typeActivites Table primeNg -->
+<div>
+    <p-card>
+        <!-- ToolBar -->
+        <!-- <app-panel-header header="La liste des typeActivites" icon="fa fa-list fa-3x "> </app-panel-header> -->
+        <p-divider></p-divider>
+        <div class="p-d-flex">
+            <app-crud-toolbar *ngIf="authService.checkPermission(this.permissions, ['ROLE_ADMIN'])" [enableCreate]="enableCreate" (create)="onCreate()">
+            </app-crud-toolbar>
+            <div class="p-ml-auto">
+                <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+                <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+                </p-progressSpinner>
+            </div>
+        </div>
+        <p-divider></p-divider>
+
+        <p-table #dt [value]="typeActivites" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading" (onLazyLoad)="load($event)" [totalRecords]="totalRecords" [globalFilterFields]="['libelle']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+            [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+
+            <ng-template pTemplate="caption">
+                <div class="row">
+                    <div class="col" style="padding: 8px; margin-left: 8px">
+                        <span>Liste des types d'activités</span>
+                    </div>
+                    <div class="col text-right">
+                        <span class="p-input-icon-left">
+                  <i class="pi pi-search"></i>
+                  <input pInputText type="text" (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+                  placeholder="Recherche..." />
+              </span>
+                    </div>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="libelle">Libéllé
+                        <p-sortIcon field="libelle"></p-sortIcon>
+                    </th>
+                    <th [style]="{'width':'150px'}">Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-typeActivite>
+                <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="typeActivite">
+                    <td>{{typeActivite.libelle}} </td>
+                    <td>
+
+                        <app-actions-toolbal-iud  (edit)="onEdit(typeActivite)" [enableBtnEdit]="enableBtnEdit" (delete)="onDelete(typeActivite)" [enableBtnDelete]="enableBtnDelete">
+                        </app-actions-toolbal-iud>
+
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-card>
+
+    <!-- Dialog-->
+    <p-dialog [(visible)]="showDialog" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+        <ng-template pTemplate="header">
+            <i class="{{isEditing() ? 'pi-pencil' : 'pi-plus'}} pi p-mr-1"></i>
+            <span class="mr-auto">
+      {{typeActivite.id ? 'Modifier' : 'Ajouter'}} un type d'activité
+  </span>
+        </ng-template>
+        <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+        <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+        <p-divider></p-divider>
+        <!-- Form -->
+        <form (ngSubmit)="save()" #dtf="ngForm">
+            <div class="p-fluid p-grid">
+                <div class="p-fluid p-col-12 p-md-6">
+                    <label for="libelle">libéllé</label>
+                    <input id="libelle" name="libelle" #libelle="ngModel" [(ngModel)]="typeActivite.libelle" pInputText required />
+                    <!--<div class="p-error"
+              *ngIf="libelle.invalid && (libelle.dirty || libelle.touched) && libelle.errors.required">
+              <span>Veillez renseigner le libelle</span>
+          </div>-->
+                </div>
+            </div>
+
+            <p-divider></p-divider>
+            <div class="p-ml-auto text-right">
+                <button type="reset" label="Annuler" (click)="showDialog=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+                <button type="submit" [disabled]="!dtf.form.valid" label="{{isEditing() ? 'Enregistrer' : 'Ajouter'}}" icon="pi {{isEditing() ? 'pi-save' : 'pi-plus'}}" class="p-button-raised p-button-text {{isEditing() ? 'p-button-primary' : 'p-button-success'}}" pButton>
+                      </button>
+            </div>
+        </form>
+    </p-dialog>
+    <!-- Confirmation -->
+    <app-confirmation></app-confirmation>
+
+</div>

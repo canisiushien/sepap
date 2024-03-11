@@ -1,0 +1,35 @@
+<div class="row p-fluid p-grid"> 
+    <div class="p-fluid col-12 col-lg-12">
+        <form #dtf="ngForm">
+            <div class="p-fluid grid">
+                <div class="p-fluid p-col-12 col-md-12">
+                    <h6>Choix de l'exercice budgétaire</h6>
+                    <p-dropdown (onChange)="selectExercice($event)" name="exerciceId" #exerciceId="ngModel" [(ngModel)]="exerciceID" optionLabel="debut" optionValue="id"
+                    [filter]="true" filterBy="debut" [showClear]="true"   [options]="exercices" placeholder="Selectionner...">
+                    <ng-template let-exercice pTemplate="exercice">
+                        {{ exercice.debut | date:'yyyy'}}
+                      </ng-template>    
+                </p-dropdown> 
+
+                </div>
+            </div>
+            <div class="p-ml-auto text-right">
+                 
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row" style="text-align: center">
+    
+    <div class="p-fluid p-col-12 col-lg-12">
+        <br>
+        <h6 style="margin-top: 10px; margin-bottom: 10px;">Représentation des performances des ministères pour un exercice budgétaire</h6>
+        <br>
+        <div class="col-4 col-lg-4"> 
+        <p-card>
+            <p-chart type="pie" [style]="{'width': '40%','heigth':'40%'}" [data]="globalLinesData" [options]="basicOptions"></p-chart>
+        </p-card>
+        </div>
+    </div>
+</div>

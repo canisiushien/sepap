@@ -1,0 +1,8 @@
+[
+    { "id": 1, "borneInferieur": 0, "borneSuperieur": 30, "appreciation": "Critique" },
+    { "id": 2, "borneInferieur": 30, "borneSuperieur": 50, "appreciation": "Faible" },
+    { "id": 3, "borneInferieur": 50, "borneSuperieur": 60, "appreciation": "Moyen" },
+    { "id": 4, "borneInferieur": 60, "borneSuperieur": 90, "appreciation": "Satisfaisant" },
+    { "id": 5, "borneInferieur": 90, "borneSuperieur": 100, "appreciation": "Excellente" }
+
+]

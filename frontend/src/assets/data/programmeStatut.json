@@ -1,0 +1,5 @@
+[
+  {"id":1, "statut" :"ENCORE"},
+  {"id":2, "statut" :"CLOTURE"},
+  {"id":3, "statut" :"ANNULLE"}
+]

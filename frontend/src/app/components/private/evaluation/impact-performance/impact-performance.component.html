@@ -1,0 +1,122 @@
+<div>
+
+  <p-card>
+    <!-- ToolBar -->
+    <div class="p-d-flex">
+        <app-crud-toolbar *ngIf="authService.checkPermission(this.permissions, ['ROLE_ADMIN','ROLE_DIR_DGESS','ROLE_RESP_DGESS','ROLE_RESP_STRUCT'])" [enableCreate]="enableCreate" (create)="onCreate()">
+        </app-crud-toolbar>
+        <div class="p-ml-auto">
+            <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+            <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+            </p-progressSpinner>
+        </div>
+    </div>
+    <p-divider></p-divider>
+
+    <p-table #dt [value]="impacts" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading" (onLazyLoad)="load($event)" [totalRecords]="totalRecords" [globalFilterFields]="['code','libelle','description', 'objectifStrategique.libelle']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+        [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+
+        <!-- <p-contextMenu #cm [model]="contextMenuItems"></p-contextMenu>
+<p-table #dt [value]="agents" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading" (onLazyLoad)="load($event)" [totalRecords]="totalRecords" [globalFilterFields]="['matricule','nom','prenom','email']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+    [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" [(selection)]="selection" selectionMode="single" styleClass="p-datatable-sm" [(contextMenuSelection)]="selection" [contextMenu]="cm"> -->
+
+        <ng-template pTemplate="caption">
+            <div class="row">
+                <div class="col" style="padding: 8px; margin-left: 8px">
+                    <span>Liste des impacts </span>
+                </div>
+                <div>
+                   <span class="p-input-icon-left">
+              <label for="structure" class="mr-2">Ministère </label>
+              <p-dropdown  optionLabel="sigle" inputId="structure" [options]="ministeres"
+             (onChange)="changeMinistere($event)"  name="structure" [filter]="true" filterBy="libelle" [showClear]="true"  placeholder="Selectionner...">
+              </p-dropdown>
+            </span>
+                </div>
+                <div class="col text-right">
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+                        placeholder="Recherche..." />
+                    </span>
+                </div>
+            </div>
+
+        </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="code">Ministère
+                <p-sortIcon field="code"></p-sortIcon>
+                </th>
+                <th pSortableColumn="libelle">Libéllé
+                    <p-sortIcon field="libelle"></p-sortIcon>
+                </th>
+
+                <th>Type</th>
+                <th>Statut</th>
+                <th style="width: 15%">Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-impact>
+            <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="impact">
+                <td>{{impact.ministere.sigle}} </td>
+                <td>{{impact.libelle}} </td>
+                <td>{{impact.statistique ? 'Statistique' : 'Impact'}} </td>
+                <td>{{impact.inactif ? 'Inactif' : 'Activé'}} </td>
+                <td style="width: 15%">
+
+                    <app-actions-toolbal-iud (info)="onInfo(impact)" [enableBtnInfo]="enableBtnInfo" (edit)="onEdit(impact)" [enableBtnEdit]="enableBtnEdit" (delete)="null" [enableBtnDelete]="enableBtnDelete">
+                    </app-actions-toolbal-iud>
+
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card>
+
+<p-dialog [(visible)]="showDialog" [modal]="true" [maximizable]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+  <ng-template pTemplate="header">
+      <i class="{{isEditing() ? 'pi-pencil' : 'pi-plus'}} pi p-mr-1"></i>
+      <span class="mr-auto"> {{impact.id ? 'Modifier' : 'Ajouter'}} un impact
+</span>
+  </ng-template>
+  <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+  <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+  <!-- Form -->
+  <form (ngSubmit)="save()" #dtf="ngForm">
+      <div class="p-fluid grid">
+          <div class=" p-fluid col-md-12  p-md-12">
+              <label for="ministere">Ministère</label>
+              <p-dropdown [options]="ministeres" [(ngModel)]="impact.ministere" name="libelle" placeholder="Selectionner un ministère"
+              optionLabel="sigle" inputId="ministere" [showClear]="true"></p-dropdown>
+          </div>
+
+          <div class="p-fluid col-md-12  p-md-12">
+              <label for="libelle">Libéllé</label>
+              <input id="libelle" name="libelle" #libelle="ngModel" [(ngModel)]="impact.libelle" pInputText required />
+          </div>
+
+          <div class="p-fluid col-md-12  p-md-12 ">
+              <label for="description">Description</label>
+              <textarea [rows]="5" [cols]="30" id="description" name="description" #description="ngModel" [(ngModel)]="impact.description" pInputTextarea></textarea>
+          </div>
+
+          <div class="p-fluid p-col-12 col-md-6 mt-3">
+            <label class="mr-2" for="statistique">Statistique</label>
+            <p-checkbox id="statistique" name="statistique" #statistique="ngModel" [(ngModel)]="impact.statistique" [binary]="true" inputId="binary"></p-checkbox>
+        </div>
+        <div class="p-fluid p-col-12 col-md-6 mt-3">
+            <label class="mr-2" for="inactif">Inactif</label>
+            <p-checkbox id="inactif" name="inactif" #inactif="ngModel" [(ngModel)]="impact.inactif" [binary]="true" inputId="binary"></p-checkbox>
+        </div>
+      </div>
+      <p-divider></p-divider>
+      <div class="p-ml-auto text-right">
+          <button type="reset" label="Annuler" (click)="showDialog=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+          <button type="submit" [disabled]="!dtf.form.valid" label="{{isEditing() ? 'Enregistrer' : 'Ajouter'}}" icon="pi {{isEditing() ? 'pi-save' : 'pi-plus'}}" class="p-button-raised p-button-text {{isEditing() ? 'p-button-primary' : 'p-button-success'}}" pButton>
+                  </button>
+      </div>
+  </form>
+</p-dialog>
+</div>

@@ -1,0 +1,31 @@
+
+.card {
+    box-shadow: 0 .1rem .7rem rgba(0,0,0,.1);
+    margin-bottom: 30px;
+}
+
+.card-body {
+    flex: 1 1 auto;
+    min-height: 1px;
+    padding: 1.25rem;
+}
+
+.radius-15 {
+    border-radius: 15px;
+}
+
+.bg-voilet {
+    background-color: #7d00b5!important;
+}
+
+.bg-primary-blue {
+    background-color: #265ed7!important;
+}
+
+.bg-rose {
+    background-color: #ff007c!important;
+}
+
+.bg-sunset {
+    background-color: #ff8b01!important;
+}

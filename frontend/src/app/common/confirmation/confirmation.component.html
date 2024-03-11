@@ -1,0 +1,10 @@
+<p-confirmDialog #cd header="Confirmation" icon="pi pi-question">
+  <ng-template pTemplate="footer">
+    <button label="Non" (click)="cd.reject()" pButton type="button" icon="pi pi-times"
+      class="p-button-primary p-button-raised p-button-text p-mr-3">
+    </button>
+    <button label="Oui" (click)="cd.accept()" pButton type="button" icon="pi pi-check"
+      class="p-button-primary p-button-raised p-button-text p-mr-3">
+    </button>
+  </ng-template>
+</p-confirmDialog>

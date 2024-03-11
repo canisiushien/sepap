@@ -1,0 +1,139 @@
+@import '~@nebular/theme/styles/globals';
+@import "../node_modules/primeng/resources/themes/bootstrap4-light-blue/theme.css";
+
+
+
+@import "../node_modules/bootstrap/dist/css/bootstrap.css";
+@import "../node_modules/primeng/resources/primeng.min.css";
+@import "../node_modules/@fullcalendar/common/main.css";
+@import "../node_modules/primeicons/primeicons.css";
+@import "../node_modules/ionicons/scss/ionicons.scss";
+@import 'themes';
+@include nb-install() {
+    @include nb-theme-global();
+}
+
+;
+.nb-theme-corporate nb-layout-header {
+  background-color:#236CCD;
+  font-family: Open Sans, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+  color:white;
+}
+
+
+/* You can add global styles to this file, and also import other style files */
+
+
+
+
+.logo span{
+
+  color: white;
+  font-size: 13px;
+}
+
+.nb-theme-corporate nb-user .user-name {
+  color: white;
+  font-family: Open Sans, sans-serif;
+  font-weight: bold;
+}
+
+.menu-sidebar{
+
+  background-color: red;
+}
+
+[dir=ltr] .nb-theme-corporate nb-action {
+  border-left: 0px solid #edf1f7;
+}
+
+.nb-theme-corporate nb-action nb-icon {
+  color: white;
+}
+
+.user-action{
+text-align: left;
+margin: 0;
+padding: 0;
+
+}
+
+// .menu-item a .menu-title {
+//    flex: 0 0 auto;
+// }
+
+.nb-theme-corporate nb-context-menu nb-menu {
+  border-radius: 0.17rem ;
+  overflow: hidden;
+  text-align: left;
+}
+
+.nb-theme-corporate nb-layout .layout {
+  background-color: white;
+  color: white;
+  font-family: Open Sans, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+  min-height: 100
+vh
+;
+}
+
+.nb-theme-corporate nb-layout .layout .layout-container .content nb-layout-footer nav {
+  background-color: #236CCD;
+  border-top: 1px solid #edf1f7;
+  color: white;
+  font-family: Open Sans, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  height: 30px;
+  line-height: 1.25rem;
+  padding: 1rem;
+}
+
+.nb-theme-corporate nb-sidebar .scrollable {
+ background-color: #d9d9d9;
+}
+
+
+* {
+  -webkit-box-sizing: border-box;
+}
+
+.p-card {
+  background: white;
+  color: #212529;
+  box-shadow: 0 2px 1px -1px rgb(0 0 0 / 20%), 0 1px 1px 0 rgb(0 0 0 / 14%), 0 1px 3px 0 rgb(0 0 0 / 12%);
+  border-radius: 4
+px
+;
+}
+
+
+// .p-datepicker {
+//   min-width: 20%;
+//   height:20%
+// }
+// .p-datepicker{
+//   background: #ffffff;
+//   border: 1px solid rgba(0, 0, 0, 0.15);
+//   box-shadow: none;
+// }
+
+// .p-datepicker {
+//   width: 20%;
+//   height:20%;
+//   position: absolute;
+//   top: 20%;
+//   left: 0;
+// }
+.p-card .p-card-footer {
+  background-color: #f4f7fc;
+  padding: 1
+rem
+0 0 0;
+}

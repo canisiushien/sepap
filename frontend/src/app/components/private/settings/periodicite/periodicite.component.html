@@ -1,0 +1,121 @@
+<!-- Liste des Periodicites Table primeNg -->
+<div>
+  <p-card>
+    <!-- ToolBar -->
+    <div class="p-d-flex">
+      <app-crud-toolbar *ngIf="authService.checkPermission(this.permissions, ['ROLE_ADMIN','ROLE_DIR_DGESS','ROLE_RESP_DGESS'])" [enableCreate]="enableCreate" (create)="onCreate()">
+      </app-crud-toolbar>
+      <div class="mr-auto">
+        <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+        <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
+      </div>
+    </div>
+    <p-divider></p-divider>
+
+    <p-table #dt [value]="periodicites" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading"
+      (onLazyLoad)="load($event)" [totalRecords]="totalRecords" [globalFilterFields]="['libelle','actifs']"
+      currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements" [showCurrentPageReport]=true
+      [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+
+      <!-- <p-contextMenu #cm [model]="contextMenuItems"></p-contextMenu>
+    <p-table #dt [value]="agents" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading" (onLazyLoad)="load($event)" [totalRecords]="totalRecords" [globalFilterFields]="['matricule','nom','prenom','email']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+        [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" [(selection)]="selection" selectionMode="single" styleClass="p-datatable-sm" [(contextMenuSelection)]="selection" [contextMenu]="cm"> -->
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="col" style="padding: 8px; margin-left: 8px">
+            <span>Liste des Périodicités</span>
+          </div>
+          <div class="col text-right">
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+                placeholder="Recherche..." />
+            </span>
+          </div>
+        </div>
+
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="libelle">Libéllé
+            <p-sortIcon field="libelle"></p-sortIcon>
+          </th>
+          <th pSortableColumn="actif">Actif
+            <p-sortIcon field="actif"></p-sortIcon>
+          </th>
+
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-periodicite>
+        <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="periodicite">
+          <td>{{periodicite.libelle}} </td>
+          <td *ngIf="periodicite.actif">
+            <p-tag styleClass="p-mr-2" severity="success" value="Actif" [rounded]="true"></p-tag>
+          </td>
+          <td *ngIf="!periodicite.actif">
+            <p-tag styleClass="p-mr-2" severity="danger" value="non actif" [rounded]="true"></p-tag>
+          </td>
+          <td>
+
+            <app-actions-toolbal-iud (info)="onInfo(periodicite)" [enableBtnInfo]="enableBtnInfo"
+              (edit)="onEdit(periodicite)" [enableBtnEdit]="enableBtnEdit" (delete)="onDelete(periodicite)"
+              [enableBtnDelete]="enableBtnDelete">
+            </app-actions-toolbal-iud>
+
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+
+  <!-- Dialog-->
+  <p-dialog [(visible)]="showDialog" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+    [style]="{width: '50vw'}">
+    <ng-template pTemplate="header">
+      <i class="{{isEditing() ? 'pi-pencil' : 'pi-plus'}} pi p-mr-1"></i>
+      <span class="mr-auto">
+        {{periodicite.id ? 'Modifier' : 'Ajouter'}} une périodicité
+      </span>
+    </ng-template>
+    <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+    <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+    <p-divider></p-divider>
+    <!-- Form -->
+    <form (ngSubmit)="save()" #dtf="ngForm">
+
+      <div class="p-fluid grid">
+        <div class="p-fluid p-col-12 col-md-12">
+          <label for="libelle">Libéllé</label>
+          <input id="libelle" name="libelle" #libelle="ngModel" [(ngModel)]="periodicite.libelle" pInputText required />
+        </div>
+        <br>
+        <!--div class="p-fluid p-grid" [hidden]="checkSelected">
+          <div class="p-fluid p-col-12 p-md-6">
+            <p>Verrouillé</p>
+            <p-inputSwitch (onChange)="handleChange($event)" [(ngModel)]="periodicite.actif"></p-inputSwitch>
+          </div>
+        </div-->
+        <br>
+
+        <!-- <div class="p-fluid p-col-12 col-md-6">
+          <label for="actif">Actif</label>
+          <input id="actif" name="actif" #actif="ngModel" [(ngModel)]="periodicite.actif" pInputText required />
+
+        </div> -->
+      </div>
+      <p-divider></p-divider>
+      <div class="p-ml-auto text-right">
+        <button type="reset" label="Annuler" (click)="showDialog=false"
+          class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+        <button type="submit" [disabled]="!dtf.form.valid" label="{{isEditing() ? 'Enregistrer' : 'Ajouter'}}"
+          icon="pi {{isEditing() ? 'pi-save' : 'pi-plus'}}"
+          class="p-button-raised p-button-text {{isEditing() ? 'p-button-primary' : 'p-button-success'}}" pButton>
+        </button>
+      </div>
+    </form>
+  </p-dialog>
+  <!-- Confirmation -->
+  <app-confirmation></app-confirmation>
+</div>

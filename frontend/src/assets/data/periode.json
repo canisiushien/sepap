@@ -1,0 +1,8 @@
+[
+  {"id":1,  "libelle": "nom1","debut": "debut1","fin": "premier niveau"},
+  {"id":2, "libelle": "nom2","debut": "debut1","fin": "premier niveau"},
+  {"id":3, "libelle": "nom3","debut": "debut1","fin": "premier niveau"},
+  {"id":4, "libelle": "nom4","debut": "debut1","fin": "premier niveau"},
+  {"id":5, "libelle": "nom1","debut": "debut1","fin": "premier niveau"}
+
+]

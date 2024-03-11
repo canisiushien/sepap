@@ -1,0 +1,207 @@
+<div>
+  <p-card>
+    <!-- ToolBar -->
+    <div class="p-d-flex">
+      <app-crud-toolbar *ngIf="authService.checkPermission(this.permissions, ['ROLE_ADMIN','ROLE_DIR_DGESS','ROLE_RESP_DGESS']);" [enableCreate]="enableCreate" (create)="onCreate()">
+      </app-crud-toolbar>
+      <div class="p-ml-auto">
+        <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+        <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+        </p-progressSpinner>
+      </div>
+    </div>
+    <p-divider></p-divider>
+
+    <p-table #dt [value]="programmes" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading"
+      (onLazyLoad)="load($event)" [totalRecords]="totalRecords"
+      [globalFilterFields]="['libelle','description', 'debut','fin','details']"
+      currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements" [showCurrentPageReport]=true
+      [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+
+      <!-- <p-contextMenu #cm [model]="contextMenuItems"></p-contextMenu>
+<p-table #dt [value]="agents" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading" (onLazyLoad)="load($event)" [totalRecords]="totalRecords" [globalFilterFields]="['matricule','nom','prenom','email']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+    [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" [(selection)]="selection" selectionMode="single" styleClass="p-datatable-sm" [(contextMenuSelection)]="selection" [contextMenu]="cm"> -->
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="col" style="padding: 8px; margin-left: 8px">
+            <span>Liste des Programmes budgétaires</span>
+          </div>
+          <div class="col text-right">
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+                placeholder="Recherche..." />
+            </span>
+          </div>
+        </div>
+
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="code">code
+            <p-sortIcon field="code"></p-sortIcon>
+          </th>
+          <th pSortableColumn="libelle">libéllé
+            <p-sortIcon field="libelle"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="statut">Statut
+            <p-sortIcon field="statut"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="debut">Début
+            <p-sortIcon field="debut"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="fin">Fin
+            <p-sortIcon field="fin"></p-sortIcon>
+          </th>
+          <th>Action</th>
+
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-programme>
+        <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="programme">
+          <td>{{programme.code}} </td>
+          <td>{{programme.libelle}} </td>
+          <td>{{programme.statut}} </td>
+          <td>{{programme.debut | date:'dd-MM-yyyy'}} </td>
+          <td>{{programme.fin | date:'dd-MM-yyyy'}} </td>
+
+          <td>
+
+            <app-actions-toolbal-iud (info)="onInfo(programme)" [enableBtnInfo]="enableBtnInfo"
+              (edit)="onEdit(programme)" [enableBtnEdit]="enableBtnEdit" (delete)="onDelete(programme)"
+              [enableBtnDelete]="enableBtnDelete">
+            </app-actions-toolbal-iud>
+
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+
+
+  <p-dialog [(visible)]="showDialog" [modal]="true" [maximizable]="true" appendTo="body"
+    [style]="{width: '65vw',height:'100vw'}"  [contentStyle]="{height:'500px'}"
+    [breakpoints]="{'960px': '75vw', '640px': '100vw'}">
+    <ng-template pTemplate="header">
+      <i class="{{isEditing() ? 'pi-pencil' : 'pi-plus'}} pi p-mr-1"></i>
+      <span class="mr-auto">
+        {{programme.id ? 'Modifier' : 'Ajouter'}} un programme
+      </span>
+    </ng-template>
+    <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+    <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+    <p-divider></p-divider>
+    <!-- Form -->
+    <form (ngSubmit)="save()" #dtf="ngForm">
+
+
+      <div class="p-fluid grid">
+        <div class="p-fluid p-col-12 col-md-6" hidden="true">
+          <label for="codeProgramme">Code</label>
+          <input id="codeProgramme" name="codeProgramme" value="codeProgramme" #code="ngModel"
+            [(ngModel)]="codeProgramme" pInputText />
+
+        </div>
+        <br>
+        <div class="p-fluid p-col-12 col-md-6">
+          <label for="libelle">Libéllé</label>
+          <input id="libelle" name="libelle" #libelle="ngModel" [(ngModel)]="programme.libelle" pInputText required />
+
+        </div>
+        <br>
+
+        <div class="p-fluid p-col-12 col-md-6">
+
+          <label for="icon">Date début</label>
+          <p-calendar name="debut" #debut="ngModel" [(ngModel)]="debutProgramme" dateFormat="dd-mm-yy"
+            inputId="dateformat" [showIcon]="true" inputId="icon"></p-calendar>
+        </div>
+        <br>
+        <div class="p-fluid p-col-12 col-md-6">
+
+          <label for="icon">Date fin</label>
+          <p-calendar name="fin" #fin="ngModel" [showOnFocus]="true" [(ngModel)]="finProgramme" dateFormat="dd-mm-yy"
+             inputId="dateformat" [showIcon]="true" inputId="icon">
+          </p-calendar>
+          <div class="p-error" *ngIf="(debutProgramme > finProgramme)">
+            <span>Veuillez saisir une date de début antérieure à la date de fin</span></div>
+        </div>
+        <br>
+
+        <!-- <div class="p-fluid p-col-12 col-md-6">
+          <label for="details">Détails</label>
+          <textarea id="details" name="details" #details="ngModel" [(ngModel)]="programme.details" rows="4"
+            pInputTextarea required></textarea>
+
+        </div> -->
+        <br>
+      </div>
+
+      <p-divider></p-divider>
+      <div class="p-ml-auto text-right">
+        <button description="reset" label="Annuler" (click)="showDialog=false"
+          class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+        <button description="submit" [disabled]="!dtf.form.valid" label="{{isEditing() ? 'Enregistrer' : 'Ajouter'}}"
+          icon="pi {{isEditing() ? 'pi-save' : 'pi-plus'}}"
+          class="p-button-raised p-button-text {{isEditing() ? 'p-button-primary' : 'p-button-success'}}" pButton>
+        </button>
+      </div>
+    </form>
+  </p-dialog>
+
+  <!-- details programme -->
+
+  <p-dialog [(visible)]="programmeDetail" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+    [style]="{width: '50vw'}">
+
+
+    <ng-template pTemplate="header">
+
+      <span class="p-mr-auto"> DETAILS PROGRAMME</span>
+    </ng-template>
+
+
+
+    <div class="row">
+      <div class="col-md-12">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item list-group-item-action">
+            <span class="va-m"><span class="font-weight-bold">Code:</span> {{programme.code}}</span>
+          </li>
+
+          <li class="list-group-item list-group-item-action">
+            <span class="va-m"><span class="font-weight-bold">Libéllé:</span> {{programme.libelle}}</span>
+          </li>
+          <li class="list-group-item list-group-item-action">
+            <span class="va-m"><span class="font-weight-bold"> Description:</span> {{programme.description}}</span>
+          </li>
+          <li class="list-group-item list-group-item-action">
+            <span class="va-m"><span class="font-weight-bold">Statut:</span> {{programme.statut}}</span>
+          </li>
+          <li class="list-group-item list-group-item-action">
+            <span class="va-m"><span class="font-weight-bold"> Date Début:</span>
+              {{programme.debut|date:'dd-MM-yyyy'}}</span>
+          </li>
+          <li class="list-group-item list-group-item-action">
+            <span class="va-m"><span class="font-weight-bold"> Date Fin:</span>
+              {{programme.fin|date:'dd-MM-yyyy'}}</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+    <p-divider></p-divider>
+    <div class="p-ml-auto text-right">
+      <button description="reset" label="Fermer" (click)="programmeDetail=false"
+        class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+    </div>
+  </p-dialog>
+  <!-- Confirmation -->
+  <app-confirmation></app-confirmation>
+  <p-confirmDialog [style]="{width: '50vw'}" key="positionDialog"  [baseZIndex]="10000" rejectButtonStyleClass="p-button-outlined"></p-confirmDialog>
+  <p-toast></p-toast>
+</div>

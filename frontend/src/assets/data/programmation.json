@@ -1,0 +1,124 @@
+[
+  {
+    "id":1,
+    "coutPrevisionnel": 30000000,
+    "coutReel": 30000000,
+    "cible": 50,
+    "observation": "est sit dolor sint",
+    "singleton": false,
+	  "structureId":{
+        "id": 4,
+        "libelle": "STGVAP DU MFP-BF",
+        "description": "amet aliquip",
+        "type": "DE_MISSION",
+        "statut": "ipsum tempor Excepteur",
+        "telephone": "amet do ad et aliquip",
+        "emailResp": "amet sint sed quis",
+        "emailStruct": "non do Lorem exercitation",
+        "parent": null,
+        "ministere": {
+            "id": 3
+        }
+    },
+	"projetId":{
+        "createdBy": "anonymousUser",
+        "createdDate": "2021-11-18T12:37:50.816916Z",
+        "lastModifiedBy": "anonymousUser",
+        "lastModifiedDate": "2021-11-18T12:37:50.816916Z",
+        "deleted": false,
+        "id": 7,
+        "libelle": "id officia nisi",
+        "description": "ea esse mollit",
+        "statut": "EN_COURS",
+        "debut": "1946-12-05T10:11:32.454+00:00",
+        "fin": "2006-01-20T16:43:01.088+00:00",
+        "programme": {
+            "id": 6
+        }
+    },
+    "sourceFinancementId": {
+		"createdBy": "anonymousUser",
+        "createdDate": "2021-11-18T12:35:09.167111Z",
+        "lastModifiedBy": "anonymousUser",
+        "lastModifiedDate": "2021-11-18T12:35:09.167111Z",
+        "deleted": false,
+        "id": 5,
+        "libelle": "PMAP",
+        "montant": 5.17747993E8,
+        "debut": "1983-11-23T16:13:51.214+00:00",
+        "fin": "1973-05-26T12:15:31.300+00:00"
+	},
+	"objectif":{
+	    "createdBy": "anonymousUser",
+		"createdDate": "2021-11-18T21:21:38.237657200Z",
+		"lastModifiedBy": "anonymousUser",
+		"lastModifiedDate": "2021-11-18T21:21:38.237657200Z",
+		"deleted": false,
+		"id": 10,
+		"code": "O.1.1",
+		"libelle": "objectif OPERATIONNEL 1",
+		"description": "nulla aliqua",
+		"type": "OPERATIONNEL"
+	},
+    "activite": {
+        "createdDate": "2021-11-15T09:19:27.194069400Z",
+        "lastModifiedDate": "2021-11-15T09:19:27.194069400Z",
+        "deleted": false,
+        "id": 9,
+        "code": "A.1.1",
+        "description": "consectetur pariatur ea anim",
+        "libelle": "Platef dgess zertyujhklm;zerdtgyujio",
+        "status": "EN_COURS",
+        "typeActivites": {
+			"createdBy": "anonymousUser",
+			"createdDate": "2021-11-18T12:35:32.722466Z",
+			"lastModifiedBy": "anonymousUser",
+			"lastModifiedDate": "2021-11-18T12:35:32.722466Z",
+			"deleted": false,
+			"id": 8,
+			"libelle": "sed pariatur non dolor"
+        }
+    },
+    "taches": [
+        {
+            "libelle": "tache 1",
+            "description": "deserunt eu occaecat",
+            "ponderation": 20,
+            "valeur": 20,
+            "execute": false
+        },
+        {
+            "libelle": "tache 2",
+            "description": "deserunt eu occaecat",
+            "ponderation": 30,
+            "valeur": 30,
+            "execute": false
+        },
+         {
+            "libelle": "tache 3",
+            "description": "deserunt eu occaecat",
+            "ponderation": 50,
+            "valeur": 50,
+            "execute": false
+        }
+    ],
+    "periodes": [
+        {
+            "libelle": "T1",
+            "valeur": true
+        },
+        {
+            "libelle": "T2",
+            "valeur": false
+        },
+        {
+            "libelle": "T3",
+            "valeur": true
+        },
+        {
+            "libelle": "T4",
+            "valeur": false
+        }
+    ]
+}
+]

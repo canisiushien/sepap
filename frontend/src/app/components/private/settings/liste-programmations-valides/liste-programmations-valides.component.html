@@ -1,0 +1,295 @@
+
+<p-toast></p-toast>
+<div>
+  <p-tabMenu [model]="items" [activeItem]="items[2]"></p-tabMenu>
+  <p-card>
+    <!-- ToolBar -->
+    <!-- <app-panel-header header="La liste des agents" icon="fa fa-list fa-3x "> </app-panel-header> -->
+    <!-- <p-divider></p-divider> -->
+    <div class="p-d-flex">
+      <!-- <app-crud-toolbar [enableCreate]="enableCreate" (create)="onCreate()">
+          </app-crud-toolbar> -->
+      <div class="p-ml-auto">
+      </div>
+    </div>
+    <p-divider></p-divider>
+
+    <p-table #dt [value]="programmationDTOs" styleClass="p-datatable-striped" dataKey="idp" editMode="row" [paginator]="true" [rows]="recordsPerPage"
+      [loading]="isLoading"  [totalRecords]="totalRecords" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements" [showCurrentPageReport]=true
+      [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm" [globalFilterFields]="['structure.sigle','projet.libelle','coutReel','coutPrevisionnel','cible']">
+
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="p-fluid p-col-12 col-md-4">
+              <label>Liste des programmes d'activités</label>
+          </div>
+
+            <!-- ------------menu DGESS ET ADMIN------------ -->
+           <div class="p-fluid p-col-12 col-md-2" [hidden]="btnStruct">
+             <span class="p-input-icon-left">
+               <label for="structure">Structure </label>
+               <p-dropdown  optionLabel="sigle" inputId="structure" [options]="structures" optionValue="id"
+               (onChange)="selectStructure($event)"  name="structure" [filter]="true" filterBy="libelle" [showClear]="true"  placeholder="Selectionner...">
+               </p-dropdown>
+             </span>
+           </div>
+           <div class="p-fluid p-col-12 col-md-2" [hidden]="btnStruct">
+            <label>Exercice</label>
+            <p-dropdown   optionLabel="debut" inputId="exercice" [options]="exercices" optionValue="id"
+            [filter]="true" filterBy="debut" [showClear]="true"  name="exercice" (onChange)="selectExercice($event)" placeholder="Selectionner...">
+          <ng-template let-exercice pTemplate="exercice">
+            {{ exercice.debut | date:'yyyy'}}
+          </ng-template>
+          </p-dropdown>
+          </div>
+           <div class="p-fluid p-col-12 col-md-2" [hidden]="btnStruct">
+            <label for="searchBtn" style="margin-top: 2px;">Rechercher</label>
+            <p-button inputId="searchBtn" label="Rechercher" icon="pi pi-search" iconPos="right" (click)="load2()">
+            </p-button>
+           </div>
+           <div class="p-fluid p-col-12 col-md-2" [hidden]="btnStruct">
+             <label>Export</label>
+             <button pButton pRipple label="Programme " icon="pi pi-upload" class="p-button-help"
+             (click)="onExport()"></button>
+           </div>
+
+           <!-- ---------menus RESPONSABLE ET FOCAL STRUCTURE-------- -->
+           <div class="p-fluid p-col-12 col-md-2" [hidden]="!btnStruct"></div>
+           <div class="p-fluid p-col-12 col-md-2" [hidden]="!btnStruct">
+            <label>Exercice</label>
+            <p-dropdown   optionLabel="debut" inputId="exercice" [options]="exercices" optionValue="id" [filter]="true"
+            filterBy="debut" [showClear]="true"  name="exercice" (onChange)="selectExercice($event)" placeholder="Selectionner...">
+            <ng-template let-exercice pTemplate="exercice">
+              {{ exercice.debut | date:'yyyy'}}
+            </ng-template> 
+          </p-dropdown>
+        </div>
+        <div class="p-fluid p-col-12 col-md-2" [hidden]="!btnStruct">
+          <label for="searchBtn" style="margin-top: 2px;">Rechercher</label>
+          <p-button inputId="searchBtn" label="Rechercher" icon="pi pi-search" iconPos="right" (click)="load2()">
+          </p-button>
+         </div>
+         <div class="p-fluid p-col-12 col-md-2" [hidden]="!btnStruct">
+           <label>Export</label>
+           <button pButton pRipple label="Programme" icon="pi pi-upload" class="p-button-help"
+             (click)="onExportStructure()"></button>
+         </div>
+
+
+
+       <!-- ----------fin des menus-------- -->
+      </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+
+          <th pSortableColumn="structure">Structure
+            <p-sortIcon field="structure.libelle"></p-sortIcon>
+          </th>
+          <th pSortableColumn="code">Code
+            <p-sortIcon field="code"></p-sortIcon>
+          </th>
+          <th pSortableColumn="activite">Activité
+            <p-sortIcon field="activite.libelle"></p-sortIcon>
+          </th>
+          <th pSortableColumn="periodes">Période
+            <p-sortIcon field="periodes"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="coutPrevisionnel">Coût Prévi.
+            <p-sortIcon field="coutPrevisionnel"></p-sortIcon>
+          </th>
+          <th pSortableColumn="source">Financement
+            <p-sortIcon field="source"></p-sortIcon>
+          </th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <!-- liste des programmations non validées au CASEM -->
+      <ng-template pTemplate="body" let-editing="editing" let-ri="rowIndex" let-rowData let-rowIndex="rowIndex" let-programmationDTO>
+        <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pEditableRow]="programmationDTO">
+            <td>{{programmationDTO.structure? programmationDTO.structure.sigle: '-'}} </td>
+            <td>{{programmationDTO.code}} </td>
+            <td>{{programmationDTO.activite? programmationDTO.activite.libelle: '-'}} </td>
+            <td>{{programmationDTO.periodes}} </td>
+            <td>{{programmationDTO.coutPrevisionnel}} </td>
+            <td>{{programmationDTO.sourceFinancement? programmationDTO.sourceFinancement.libelle: '-'}} </td>
+
+          <td>
+            <app-actions-toolbal-iud  [enableBtnInfo]="enableBtnInfo" (info)="onInfo(programmationDTO)">
+            </app-actions-toolbal-iud>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+
+  <!-- ------DETAILS PROGRAMME-------- -->
+
+  <p-dialog [(visible)]="detailDialog" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '80vw'}">
+  <div class="p-fluid grid">
+    <!-- premier bloc -->
+
+    <!-- deuxième bloc-->
+    <div class="p-fluid p-col-12 col-md-12 rightcontent">
+
+      <div class="p-fluid grid">
+        <div class="p-fluid p-col-12 col-md-6">
+            <div> <b> Programme:</b> {{programmation.projet? programmation.projet.programme?.code: '-'}}</div>
+                <p>
+                    {{programmation.projet? programmation.projet.programme?.libelle: '-'}}
+                </p>
+        </div>
+        <div class="p-fluid p-col-12 col-md-6">
+            <div> <b>Projet:</b> </div>
+            <p>
+                {{programmation.projet? programmation.projet.libelle : '-'}}
+            </p>
+            <!-- Objectif operationnel 1.1 -->
+        </div>
+    </div>
+    <p-divider></p-divider>
+
+        <div class="p-fluid grid">
+            <div class="p-fluid p-col-12 col-md-6">
+                <div> <b>Action:</b>{{programmation.objectif? programmation.objectif.action?.code : '-'}}</div>
+                <p>
+                    {{programmation.objectif? programmation.objectif.action?.libelle : '-'}}
+                </p>
+            </div>
+            <div class="p-fluid p-col-12 col-md-6">
+                <div> <b>Objectif operationnel</b>: {{programmation.objectif? programmation.objectif.code: '-'}}</div>
+                <p>
+                    {{programmation.objectif? programmation.objectif.libelle: '-'}}
+                </p>
+            </div>
+        </div>
+
+        <p-divider></p-divider>
+        <div class="p-fluid grid">
+            <div class="p-fluid p-col-12 col-md-6">
+                <div> <b>Activité:</b> {{programmation.code? programmation.code: '-'}}</div>
+                <!-- <p>
+                  There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected.
+              </p> -->
+            </div>
+            <div class="p-fluid p-col-12 col-md-6">
+                <div>{{programmation.activite? programmation.activite.libelle: '-'}}</div>
+                <!-- <p>
+                  Contrary to popular belief, Lorem Ipsum is not simply class 2000 years old.Lorem Ipsum is not simply class 2000
+              </p> -->
+            </div>
+        </div>
+        <!-- <p-divider></p-divider> -->
+
+        <div class="p-fluid grid row-margin">
+            <div class="p-fluid p-col-12 col-md-6 rowcontent">
+                <div> <b>Indicateur</b></div>
+            </div>
+            <div class="p-fluid p-col-12 col-md-6 rowcontent">
+              {{programmation.indicateur}}
+            </div>
+        </div>
+
+        <div class="p-fluid grid row-margin">
+            <div class="p-fluid p-col-12 col-md-6 rowcontent">
+                <div> <b>Cible:</b> {{programmation.cible}}</div>
+            </div>
+            <div class="p-fluid p-col-12 col-md-6 rowcontent">
+                {{programmation.cible}}
+            </div>
+        </div>
+        <!-- <p-divider></p-divider> -->
+        <!-- Debut table -->
+
+        <p-table #dt [value]="taches" [paginator]="false" styleClass="p-datatable-sm">
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="libelle">Tâches
+                        <!-- <p-sortIcon field="tache"></p-sortIcon> -->
+                    </th>
+                    <th pSortableColumn="valeurCible">Valeur cible
+                        <!-- <p-sortIcon field="valeurCible"></p-sortIcon> -->
+                    </th>
+                    <th pSortableColumn="poids">Poids
+                        <!-- <p-sortIcon field="poids"></p-sortIcon> -->
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-tache>
+                <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" editable="true">
+                    <td>{{tache.libelle}} </td>
+                    <td>{{tache.valeur}} </td>
+                    <td>{{tache.ponderation}}% </td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+        <br><br>
+        <!-- Fin Table -->
+    </div>
+    <!-- Fin deuxième bloc-->
+    <div class="p-fluid grid">
+        <div class="p-fluid p-col-12 col-md-1">
+        </div>
+        <div class="p-fluid p-col-12 col-md-1">
+            <!-- <button pButton pRipple type="submit" label="Soumettre" class="p-button-raised p-button-success  "></button> -->
+        </div>
+    </div>
+</div>
+<div class="p-ml-auto text-right">
+  <button type="reset" label="Fermer" (click)="detailDialog=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+
+</div>
+ </p-dialog>
+
+ <!-- -----PARTIE EXPORT PROGRAMME----------------------- -->
+
+ <p-dialog [(visible)]="showDialogProgramme" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+ [style]="{width: '50vw'}">
+ <div class="p-fluid grid">
+   <div class="p-fluid p-col-12 col-md-12" [hidden]="btnHiddenMinistere">
+     <h6>Choix du ministère</h6>
+     <p-dropdown (onChange)="selectMinistere($event)" optionLabel="libelle" optionValue="id" [options]="ministeres"
+       name="ministere" placeholder="Selectionner...">
+     </p-dropdown>
+   </div>
+
+   <div class="p-fluid p-col-12 col-md-12">
+     <h6>Choix de structure</h6>
+     <p-dropdown (onChange)="selectStructure($event)" optionLabel="libelle" optionValue="id" [options]="structs"
+       name="structure" placeholder="Selectionner...">
+     </p-dropdown>
+   </div>
+
+   <div class="p-fluid p-col-12 col-md-12">
+     <h6>Choix de exercice</h6>
+
+     <p-dropdown (onChange)="selectExercice($event)" optionLabel="debut" optionValue="id" [options]="exercices"
+       name="exercice" placeholder="Selectionner...">
+       <ng-template let-exercice pTemplate="exercice">
+        {{ exercice.debut | date:'yyyy'}}
+      </ng-template>
+     </p-dropdown>
+   </div>
+   <div class="p-fluid p-col-12 col-md-12">
+     <h6>Choisir le format</h6>
+     <p-dropdown (onChange)="selectFormat($event)" optionLabel="name" optionValue="name" [options]="formats"
+       name="format" placeholder="Selectionner...">
+     </p-dropdown>
+   </div>
+ </div>
+
+ <p-divider></p-divider>
+ <div class="p-ml-auto text-right">
+   <button type="reset" label="Annuler" (click)="showDialogProgramme=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+   <button type="submit"  (click)="exportProgrammeActivites()"  label="Valider" icon="pi pi-save" class="p-button-help" pButton>
+   </button>
+ </div>
+
+
+
+</p-dialog>
+</div>

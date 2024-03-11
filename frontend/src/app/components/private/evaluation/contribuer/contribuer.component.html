@@ -1,0 +1,208 @@
+
+<div>
+
+  <p-card>
+    <!-- ToolBar -->
+    <div class="p-d-flex">
+        <app-crud-toolbar *ngIf="authService.checkPermission(this.permissions, ['ROLE_ADMIN','ROLE_DIR_DGESS','ROLE_RESP_DGESS','ROLE_RESP_STRUCT'])" [enableCreate]="enableCreate" (create)="onCreate()">
+        </app-crud-toolbar>
+        <div class="p-ml-auto">
+            <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+            <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+            </p-progressSpinner>
+        </div>
+    </div>
+    <p-divider></p-divider>
+
+    <p-table #dt [value]="contributions" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading"  [totalRecords]="totalRecords" [globalFilterFields]="['code','libelle','description', 'objectifStrategique.libelle']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+        [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+
+
+
+        <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col" style="padding: 8px; margin-left: 8px">
+                    <span>Liste des contributions </span>
+                </div>
+              <div class="p-fluid p-col-12 col-md-2">
+              <span class="p-input-icon-left">
+              <label for="structure" class="mr-2">Ministère </label>
+              <p-dropdown  optionLabel="libelle" inputId="ministere" optionValue="id" (onChange)="selectMinistere($event)" [options]="ministeres"
+               name="ministere" [filter]="true" filterBy="libelle" [showClear]="true"  placeholder="Selectionner...">
+              </p-dropdown>
+              </span>
+              </div>
+
+              <div class="p-fluid p-col-12 col-md-2">
+                <span class="p-input-icon-left">
+                  <label for="structure">Structure </label>
+                  <p-dropdown  optionLabel="libelle" inputId="structure" optionValue="id" (onChange)="selectStructure($event)" [options]="structures" [(ngModel)]="contribution.structure"
+                   name="structure" [filter]="true" filterBy="libelle" [showClear]="true"  placeholder="Selectionner...">
+                  </p-dropdown>
+                </span>
+              </div>
+
+              <div class="p-fluid p-col-12 col-md-2">
+                <label>Exercice</label>
+                <p-dropdown   optionLabel="debut" inputId="exercice" [options]="exercices" optionValue="id"
+                filterBy="debut" [showClear]="true"  name="exercice" (onChange)="selectExercice($event)" placeholder="Selectionner...">
+                <ng-template let-exercice pTemplate="exercice"> {{exercice.debut | date:'yyyy'}}</ng-template>
+
+               </p-dropdown>
+            </div>
+             <div class="p-fluid p-col-12 col-md-2">
+               <label for="searchBtn" style="margin-top: 2px;">Rechercher</label>
+               <p-button inputId="searchBtn" label="Rechercher" icon="pi pi-search" iconPos="right" (click)="getContrbutions()">
+               </p-button>
+             </div>
+            </div>
+
+        </ng-template>
+
+        <ng-template pTemplate="header">
+                <tr>
+                  <th pSortableColumn="structure.libelle">Structure
+                    <p-sortIcon field="structure"></p-sortIcon>
+                </th>
+
+                <th pSortableColumn="parametrerImpact.impact.libelle">Impact
+                  <p-sortIcon field="impact"></p-sortIcon>
+               </th>
+
+               <th pSortableColumn="parametrerImpact.valeurReference">Valeur Reférence
+                <p-sortIcon field="valeurReference"></p-sortIcon>
+             </th>
+
+                <th pSortableColumn="cible">Cible
+                    <p-sortIcon field="cible"></p-sortIcon>
+                </th>
+                <th pSortableColumn="valeur">Valeur
+                    <p-sortIcon field="valeur"></p-sortIcon>
+                </th>
+                <th>
+                    Applicable
+                </th>
+
+                <th style="width: 15%">
+                    Actions
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-contribution>
+            <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="contribution">
+                <td>{{contribution.structure ?contribution.structure.libelle : '-'}}</td>
+                <td>{{contribution.parametrerImpact ?  contribution.parametrerImpact.impact.libelle : '-'}} </td>
+                <td>{{contribution.parametrerImpact?.valeurReference }}</td>
+                <td>{{contribution.cible}} </td>
+                <td>{{contribution.valeur}} </td>
+                <td>{{contribution.nonapplicable ? 'non' : 'oui'}} </td>
+                <td style="width: 15%">
+
+                    <app-actions-toolbal-iud (info)="onInfo(contribution)" [enableBtnInfo]="enableBtnInfo" (edit)="onEdit(contribution)" [enableBtnEdit]="enableBtnEdit" (delete)="null" [enableBtnDelete]="enableBtnDelete">
+                    </app-actions-toolbal-iud>
+
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card>
+
+<p-dialog [(visible)]="showDialog" [maximizable]="true" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+  <ng-template pTemplate="header">
+      <i class="{{isEditing() ? 'pi-pencil' : 'pi-plus'}} pi p-mr-1"></i>
+      <span class="mr-auto"> {{contribution.id ? 'Modifier' : 'Ajouter'}} une contribution
+</span>
+  </ng-template>
+  <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+  <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+  <!-- Form -->
+   <form (ngSubmit)="save()" #dtf="ngForm">
+      <div class="p-fluid grid">
+          <div class="p-fluid p-col-12 col-md-12">
+            <label for="structure" class="mr-2">Ministère </label>
+              <p-dropdown  optionLabel="libelle" inputId="ministere" [options]="ministeres"  (onChange)="loadImpact($event)"
+               name="ministere" [filter]="true" filterBy="libelle" [showClear]="true"  placeholder="Selectionner...">
+              </p-dropdown>
+          </div>
+          <div class="p-fluid p-col-12 col-md-12">
+              <label for="ministere">Impact</label>
+              <p-dropdown [options]="impacts" (onChange)="loadParametreImpact($event)" name="libelle" placeholder="Selectionner un impact"
+              optionLabel="libelle" inputId="libelle" [filter]="true" filterBy="libelle" [showClear]="true"></p-dropdown>
+          </div>
+
+          <div class="p-fluid p-col-12 col-md-12">
+            <label for="ministere">Paramètres impact</label>
+            <p-dropdown [options]="parametreImpacts" [(ngModel)]="contribution.parametrerImpact" name="parametreImpact" placeholder="Selectionner une cible"
+            optionLabel="cible" inputId="parametreImpact" [filter]="true" filterBy="cible" [showClear]="true"></p-dropdown>
+        </div>
+
+        <div class="p-fluid p-col-12 col-md-12">
+          <span class="p-input-icon-left">
+            <label for="structure">Structure </label>
+            <p-dropdown  optionLabel="sigle" inputId="structure" [options]="structures" [(ngModel)]="contribution.structure"
+             name="structure" [filter]="true" filterBy="libelle" [showClear]="true"  placeholder="Selectionner...">
+            </p-dropdown>
+          </span>
+        </div>
+
+          <div class="p-fluid p-col-12 col-md-6">
+              <label for="cible">Cible</label>
+              <input id="cible" name="cible" #cible="ngModel" [(ngModel)]="contribution.cible" pInputText required />
+          </div>
+
+          <div class="p-fluid p-col-12 col-md-6">
+              <label for="valeur">Valeur</label>
+              <input id="valeur" name="valeur" #valeur="ngModel" [(ngModel)]="contribution.valeur" pInputText required />
+          </div>
+
+          <div class="p-fluid p-col-12 col-md-6 mt-3">
+            <label class="mr-2" for="monapplicable">Applicable</label>
+            <p-checkbox id="monapplicable" name="monapplicable" #monapplicable="ngModel" [(ngModel)]="contribution.monapplicable" [binary]="true" inputId="binary"></p-checkbox>
+          </div>
+
+      </div>
+      <p-divider></p-divider>
+      <div class="p-ml-auto text-right">
+          <button type="reset" label="Annuler" (click)="showDialog=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+          <button type="submit" [disabled]="!dtf.form.valid" label="{{isEditing() ? 'Enregistrer' : 'Ajouter'}}" icon="pi {{isEditing() ? 'pi-save' : 'pi-plus'}}" class="p-button-raised p-button-text {{isEditing() ? 'p-button-primary' : 'p-button-success'}}" pButton>
+                  </button>
+      </div>
+  </form>
+</p-dialog>
+
+    <!-- DETAILS CONTRIBUTION -->
+
+    <p-dialog [(visible)]="detailDialog" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+      <ng-template pTemplate="header">
+
+        <span class="p-mr-auto"> DETAILS CONTRIBUTION</span>
+      </ng-template>
+        <div class="row">
+             <div class="col-md-6">
+               <ul class="list-group list-group-flush">
+                <li class="list-group-item list-group-item-action">
+                    <span class="va-m"><span class="font-weight-bold">Structure:</span>  {{contribution.structure ?contribution.structure.libelle : '-'}}</span>
+                  </li>
+                 <li class="list-group-item list-group-item-action">
+                   <span class="va-m"><span class="font-weight-bold">Impact:</span>  {{contribution.parametrerImpact ?  contribution.parametrerImpact.impact?.libelle : '-'}} </span>
+                 </li>
+               </ul>
+            </div>
+            <div class="col-md-6">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item list-group-item-action">
+                 <span class="va-m"><span class="font-weight-bold">Cible:</span>  {{contribution.cible}}</span>
+               </li>
+               <li class="list-group-item list-group-item-action">
+                <span class="va-m"><span class="font-weight-bold">Valeur:</span>  {{contribution.valeur}}</span>
+              </li>
+              </ul>
+           </div>
+        </div>
+         <p-divider></p-divider>
+         <div class="p-ml-auto text-right">
+             <button description="reset" label="Fermer" (click)="detailDialog=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+
+         </div>
+      </p-dialog>
+</div>

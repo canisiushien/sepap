@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="management_generator" author="Bieve">
+        <createSequence sequenceName="sequence_generator" startValue="56" incrementBy="50"/>
+    </changeSet>
+
+    <changeSet id="00000000000001" author="Bieve">
+        <createTable tableName="agent">
+            <column name="id" type="bigint" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="matricule" type="varchar(50)">
+                <constraints unique="true" nullable="false" uniqueConstraintName="ux_agent_matricule"/>
+            </column>
+            <column name="password_hash" type="varchar(60)"/>
+            <column name="nom" type="varchar(50)"/>
+            <column name="prenom" type="varchar(150)"/>
+            <column name="email" type="varchar(254)">
+                <constraints unique="true" nullable="true" uniqueConstraintName="ux_agent_email"/>
+            </column>
+            <column name="actif" type="boolean" valueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+            <column name="telephone" type="varchar(20)"/>
+            <column name="activation_key" type="varchar(20)"/>
+            <column name="reset_key" type="varchar(20)"/>
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp" defaultValueDate="${now}"/>
+            <column name="reset_date" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
+            <column name="deleted" type="boolean" valueBoolean="false" defaultValueComputed="false">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <createTable tableName="profile" >
+            <column name="id" type="bigint" autoIncrement="true" incrementBy="1" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="native_profile" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="varchar(50)" defaultValue="system" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp" defaultValueDate="${now}"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
+            <column name="deleted" type="boolean" valueBoolean="false" defaultValueComputed="false">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <createTable tableName="agent_profile">
+            <column name="agent_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="profile_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="agent_id, profile_id" tableName="agent_profile"/>
+
+        <addForeignKeyConstraint baseColumnNames="profile_id"
+                                 baseTableName="agent_profile"
+                                 constraintName="fk_profile_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="profile"/>
+
+        <addForeignKeyConstraint baseColumnNames="agent_id"
+                                 baseTableName="agent_profile"
+                                 constraintName="fk_agent_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="agent"/>
+        
+        <addNotNullConstraint   columnName="password_hash"
+                                columnDataType="varchar(60)"
+                                tableName="agent"/>
+        
+        <createTable tableName="privilege" >
+            <column name="id" type="bigint" autoIncrement="true" incrementBy="1" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="varchar(50)" defaultValue="system" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp" defaultValueDate="${now}"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
+            <column name="deleted" type="boolean" valueBoolean="false" defaultValueComputed="false">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <createTable tableName="profile_privilege">
+            <column name="profile_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="privilege_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="profile_id, privilege_id" tableName="profile_privilege"/>
+
+        <addForeignKeyConstraint baseColumnNames="profile_id"
+                                 baseTableName="profile_privilege"
+                                 constraintName="fk_profile_id_privilege"
+                                 referencedColumnNames="id"
+                                 referencedTableName="profile"/>
+
+        <addForeignKeyConstraint baseColumnNames="privilege_id"
+                                 baseTableName="profile_privilege"
+                                 constraintName="fk_privilege_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="privilege"/>
+
+        <loadData
+            file="config/liquibase/data/agent.csv"
+            separator=";"
+            tableName="agent">
+            <column name="id" type="numeric"/>
+            <column name="actif" type="boolean"/>
+            <column name="created_date" type="timestamp"/>
+        </loadData>
+        <dropDefaultValue tableName="agent" columnName="created_date" columnDataType="datetime"/>
+        <loadData
+            file="config/liquibase/data/profile.csv"
+            separator=";"
+            tableName="profile">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="native_profile" type="boolean"/>
+        </loadData>
+
+        <loadData
+            file="config/liquibase/data/agent_profile.csv"
+            separator=";"
+            tableName="agent_profile">
+            <column name="agent_id" type="numeric"/>
+            <column name="profile_id" type="numeric"/>
+        </loadData>
+        
+        <loadData
+            file="config/liquibase/data/privilege.csv"
+            separator=";"
+            tableName="privilege">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+        </loadData>
+        
+        <loadData
+            file="config/liquibase/data/profile_privilege.csv"
+            separator=";"
+            tableName="profile_privilege">
+            <column name="profile_id" type="numeric"/>
+            <column name="privilege_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+        
+</databaseChangeLog>

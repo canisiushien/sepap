@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}" lang="en">
+  <head>
+    <title th:text="${title}">Mail notification</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+  </head>
+  <body>
+    <p th:text="|cher(e) ${agent.matricule}|">Dear</p>
+    <p th:text="${title}">
+      Objet de la  notification
+    </p>
+    <p>
+      <span >Coordialement, </span>
+      <br />
+      <em >l'Equipe de Notation.</em>
+    </p>
+  </body>
+</html>

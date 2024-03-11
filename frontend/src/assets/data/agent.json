@@ -1,0 +1,9 @@
+[
+    { "id": 1, "matricule": "matricule1", "nom": "nom1", "prenom": "prenom1", "dateNaissance": "12-11-2021", "lieuNaissance": "lieuNaissance1", "telephone": "telephone1", "email": "email1" },
+    { "id": 2, "matricule": "matricule2", "nom": "nom2", "prenom": "prenom2", "dateNaissance": "dateNaissance2", "lieuNaissance": "lieuNaissance2", "telephone": "telephone2", "email": "email2" },
+    { "id": 3, "matricule": "matricule3", "nom": "nom3", "prenom": "prenom3", "dateNaissance": "dateNaissance3", "lieuNaissance": "lieuNaissance3", "telephone": "telephone3", "email": "email3" },
+    { "id": 4, "matricule": "matricule4", "nom": "nom4", "prenom": "prenom4", "dateNaissance": "dateNaissance4", "lieuNaissance": "lieuNaissance4", "telephone": "telephone4", "email": "email4" },
+    { "id": 5, "matricule": "matricule5", "nom": "nom5", "prenom": "prenom5", "dateNaissance": "dateNaissance5", "lieuNaissance": "lieuNaissance5", "telephone": "telephone5", "email": "email5" },
+    { "id": 6, "matricule": "matricule6", "nom": "nom6", "prenom": "prenom6", "dateNaissance": "dateNaissance6", "lieuNaissance": "lieuNaissance6", "telephone": "telephone6", "email": "email6" }
+
+]

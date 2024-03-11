@@ -1,0 +1,312 @@
+<!-- Liste des Agents Table primeNg -->
+<div>
+    <p-card>
+        <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+        <p-divider></p-divider>
+        <div class="p-d-flex">
+            <div class="p-ml-auto">
+                <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+                <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+                </p-progressSpinner>
+            </div>
+        </div>
+        <p-divider></p-divider>
+
+        <p-table #dt [value]="agents" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading"
+            (onLazyLoad)="load($event)" [totalRecords]="totalRecords"
+            [globalFilterFields]="['matricule','nom','prenom','email']"
+            currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+            [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+
+            <ng-template pTemplate="caption">
+                <div class="row">
+                    <div class="col" style="padding: 8px; margin-left: 8px">
+                        <span>Liste des Agents</span>
+                    </div>
+                    <div class="col text-right">
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text"
+                                (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+                                placeholder="Recherche..." />
+                        </span>
+                    </div>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="matricule">Matricule
+                        <p-sortIcon field="matricule"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="nom">Nom
+                        <p-sortIcon field="nom"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="prenom">Prénom
+                        <p-sortIcon field="prenom"></p-sortIcon>
+                    </th>
+                    <!-- <th pSortableColumn="dateNaissance">Date naissance
+                        <p-sortIcon field="dateNaissance"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="lieuNaissance">Lieu naissance
+                        <p-sortIcon field="lieuNaissance"></p-sortIcon>
+                    </th> -->
+                    <th pSortableColumn="telephone">Téléphone
+                        <p-sortIcon field="telephone"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="email">Email
+                        <p-sortIcon field="email"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="email">Statut
+                        <p-sortIcon field="email"></p-sortIcon>
+                    </th>
+                    <!--th pSortableColumn="structure">Structure
+                        <p-sortIcon field="structure"></p-sortIcon>
+                    </th-->
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-agent>
+                <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="agent">
+                    <td>{{agent.matricule}} </td>
+                    <td>{{agent.nom}} </td>
+                    <td>{{agent.prenom}} </td>
+                    <td>{{agent.telephone}} </td>
+                    <td>{{agent.email}} </td>
+                    <td>{{agent.actif ? 'activé' : 'désactivé'}}</td>
+                    <!--td>{{agent.email}} </td-->
+                    <td>
+
+                        <app-actions-toolbal-iud (info)="onInfo(agent)" [enableBtnInfo]="enableBtnInfo"
+                            (edit)="onEdit(agent)" [enableBtnEdit]="enableBtnEdit" (changer)="onChangeMinistere(agent)"
+                            [enableBtnChanger]="enableBtnChanger" [enableBtnEmail]="enableBtnEmail && !agent.actif  "
+                            (email)="onSentMail(agent)" (delete)="onDelete(agent)" [enableBtnDelete]="enableBtnDelete"
+                            (editProfil)="onEditProfil(agent)" [enableBtnEditProfil]="enableBtnEditProfil">
+                        </app-actions-toolbal-iud>
+
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-card>
+
+    <!-- Dialog-->
+    <p-dialog [(visible)]="showDialog" [maximizable]="true" [modal]="true"
+        [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+        <ng-template pTemplate="header">
+            <i class="{{isEditing() ? 'pi-pencil' : 'pi-plus'}} pi p-mr-1"></i>
+            <span class="mr-auto">
+                {{agent.id ? 'Modifier' : 'Ajouter'}} un agent
+            </span>
+        </ng-template>
+        <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+        <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+        <p-divider></p-divider>
+        <!-- Form -->
+        <form (ngSubmit)="save()" #dtf="ngForm">
+            <div class="p-fluid grid">
+                <div class="p-fluid p-col-12 col-md-6">
+                    <label for="matricule">Matricule</label>
+                    <input id="matricule" name="matricule" #matricule="ngModel" [(ngModel)]="agent.matricule" pInputText
+                        required />
+                    <div class="p-error"
+                        *ngIf="matricule.invalid && (matricule.dirty || matricule.touched) && matricule!.errors!.required">
+                        <span>Veillez renseigner le matricule</span>
+                    </div>
+                </div>
+
+
+                <div class="p-fluid p-col-12 col-md-6">
+                    <label for="nom">Nom</label>
+                    <input id="nom" name="nom" #nom="ngModel" [(ngModel)]="agent.nom" pInputText required />
+                    <div class="p-error" *ngIf="nom.invalid && (nom.dirty || nom.touched) && nom!.errors!.required">
+                        <span>Veillez renseigner le nom</span>
+                    </div>
+                </div>
+
+
+                <div class="p-fluid p-col-12 col-md-6">
+                    <label for="prenom">Prénom</label>
+                    <input id="prenom" name="prenom" #prenom="ngModel" [(ngModel)]="agent.prenom" pInputText required />
+                    <div class="p-error"
+                        *ngIf="prenom.invalid && (prenom.dirty || prenom.touched) && prenom!.errors!.required">
+                        <span>Veillez renseigner le prenom</span>
+                    </div>
+                </div>
+
+                <div class="p-fluid p-col-12 col-md-6">
+                    <label for="telephone">Téléphone</label>
+                    <p-inputMask id="telephone" name="telephone" type="tel" #telephone="ngModel"
+                        [(ngModel)]="agent.telephone" mask="(+226) 99-99-99-99"></p-inputMask>
+                    <div class="p-error"
+                        *ngIf="telephone.invalid && (telephone.dirty || prenom.touched) && telephone!.errors!.required">
+                        <span>Veillez renseigner le telephone</span>
+                    </div>
+                </div>
+
+
+                <div class="p-fluid p-col-12 col-md-6">
+                    <label for="email">Email</label>
+                    <input disabled="true" id="email" name="email" #email="ngModel" [(ngModel)]="agent.email" pInputText
+                        required />
+                    <div class="p-error"
+                        *ngIf="email.invalid && (email.dirty || email.touched) && email!.errors!.required">
+                        <span>Veillez renseigner le email</span>
+                    </div>
+                </div>
+                <div class="p-fluid p-col-12 col-md-6 mt-5">
+                    <label for="actif" class="mr-3">Activé</label>
+                    <p-checkbox id="actif" name="actif" #actif="ngModel" [(ngModel)]="agent.actif" [binary]="true"
+                        inputId="binary" [required]="true"></p-checkbox>
+                </div>
+
+            </div>
+
+            <p-divider></p-divider>
+            <div class="p-ml-auto text-right">
+                <button type="reset" label="Annuler" (click)="showDialog=false"
+                    class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+                <button type="submit" [disabled]="!dtf.form.valid" label="{{isEditing() ? 'Enregistrer' : 'Ajouter'}}"
+                    icon="pi {{isEditing() ? 'pi-save' : 'pi-plus'}}"
+                    class="p-button-raised p-button-text {{isEditing() ? 'p-button-primary' : 'p-button-success'}}"
+                    pButton>
+                </button>
+            </div>
+        </form>
+    </p-dialog>
+
+    <p-dialog [(visible)]="showDialog2" [maximizable]="true" styleClass="p-datatable-striped" [modal]="true"
+        [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+        <ng-template pTemplate="header">
+            <i class="{{'pi-pencil' }} pi p-mr-1"></i>
+            <span class="mr-auto">{{'Affecter'}} agent</span>
+        </ng-template>
+        <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+        <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+        <p-divider></p-divider>
+        <!-- Form -->
+
+
+        <div class="p-fluid grid">
+            <div class="p-fluid p-col-12 col-md-12">
+                <label> Choix du ministère </label>
+                <p-dropdown (onChange)="selectMinistere($event)" optionLabel="libelle" optionValue="id"
+                    [options]="ministeres" name="ministere" [filter]="true" filterBy="libelle" [showClear]="true"
+                    placeholder="Selectionner...">
+                </p-dropdown>
+            </div>
+
+            <div class="p-fluid p-col-12 col-md-12">
+                <label> Choix de structure</label>
+                <p-dropdown (onChange)="selectStructure($event)" [options]="structs" optionLabel="libelle"
+                    optionValue="id" [options]="structs" name="structure" [filter]="true" filterBy="libelle"
+                    [showClear]="true" placeholder="Selectionner...">
+                </p-dropdown>
+            </div>
+        </div>
+
+        <p-divider></p-divider>
+        <div class="p-ml-auto text-right">
+            <button type="reset" label="Annuler" (click)="showDialog2=false"
+                class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+            <button type="submit" (click)="changeAgentStructure()" label="Valider" icon="pi pi-save"
+                class="p-button-help" pButton>
+            </button>
+        </div>
+    </p-dialog>
+
+    <!-- Modifier agent profil -->
+
+
+    <p-dialog [(visible)]="showProfilDialog" [maximizable]="true" [modal]="true" [modal]="true"
+        [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+        <ng-template pTemplate="header">
+
+            <span class="p-mr-auto">
+
+                Modifier profil
+            </span>
+        </ng-template>
+        <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+        <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+
+        <!-- Content -->
+        <div class="p-fluid grid">
+            <div class="p-fluid p-col-12 col-md-6">
+                <label for="name">Matricule:
+                    <p-tag styleClass="p-mr-2" severity="success" value="{{agent.matricule}}"></p-tag>
+                </label>
+
+            </div>
+        </div>
+        <p-card>
+            <div class="row">
+                <div class="col-md-3 field-checkbox" *ngFor="let profil of profils">
+                    <p-checkbox name="group2" value="profil" [value]="profil" [(ngModel)]="agentProfils"
+                        inputId="profil.id" class="m-auto" (onChange)="onselectProfil(profil,$event)"></p-checkbox>
+                    <label [for]="profil.id" class="mt-3">{{profil.name}}</label>
+                </div>
+
+            </div>
+
+            <p-divider></p-divider>
+            <div class="p-ml-auto text-right">
+                <button type="reset" label="Annuler" (click)="showProfilDialog=false"
+                    class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+                <button type="submit" (click)="modifierProfil()" label="Enregistrer" icon="pi pi-save"
+                    class="p-button-raised p-button-text p-button-primary" pButton>
+                </button>
+            </div>
+
+
+        </p-card>
+
+        <p-divider></p-divider>
+    </p-dialog>
+    <p-dialog [(visible)]="showDetailsAgent" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+        [style]="{width: '50vw'}">
+        <ng-template pTemplate="header">
+            <span class="p-mr-auto"> INFORMATIONS DETAILLEES DE L'AGENT</span>
+        </ng-template>
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item list-group-item-action">
+                        <span class="va-m"><span class="font-weight-bold">Matricule :</span>
+                            {{agentStruct ? agentStruct.matricule : '-'}}</span>
+                    </li>
+                    <li class="list-group-item list-group-item-action">
+                        <span class="va-m"><span class="font-weight-bold">Nom :</span> {{agentStruct ? agentStruct.nom: '-'}}</span>
+                    </li>
+                    <li class="list-group-item list-group-item-action">
+                        <span class="va-m"><span class="font-weight-bold"> Prenom :</span> {{agentStruct ? agentStruct.prenom: '-'}}</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item list-group-item-action">
+                        <span class="va-m"><span class="font-weight-bold"> Structure :</span> {{agentStruct ? agentStruct.structure: '-'}}
+                        </span>
+                    </li>
+                    <li class="list-group-item list-group-item-action">
+                        <span class="va-m"><span class="font-weight-bold">Téléphone :</span>
+                            {{agentStruct ? agentStruct.telephone: '-'}}</span>
+                    </li>
+                    <li class="list-group-item list-group-item-action">
+                        <span class="va-m"><span class="font-weight-bold"> Email :</span> {{agentStruct ? agentStruct.email: '-'}}</span>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+        <p-divider></p-divider>
+        <div class="p-ml-auto text-right">
+            <button description="reset" label="Fermer" (click)="showDetailsAgent=false"
+                class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+        </div>
+    </p-dialog>
+
+    <!-- Confirmation -->
+    <app-confirmation></app-confirmation>
+</div>

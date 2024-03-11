@@ -1,0 +1,76 @@
+<div class="row p-fluid p-grid"> 
+    <div class="p-fluid col-12 col-lg-12">
+        <form #dtf="ngForm">
+            <div class="p-fluid grid row">
+                <div class="p-fluid p-col-5 col-md-5">
+                    <h6>Choix du ministère</h6>
+                    <p-dropdown (onChange)="selectMinistere($event)" name="ministerId" #ministerId="ngModel" [(ngModel)]="ministereID" optionLabel="sigle" optionValue="id"
+                    [filter]="true" filterBy="sigle" [showClear]="true"  [options]="ministeres" placeholder="Selectionner...">
+                    </p-dropdown> 
+                </div>
+                <div class="p-fluid p-col-4 col-md-4">
+                    <h6>Choix de la structure</h6>
+                    <p-dropdown name="structureId" #structureId="ngModel" [(ngModel)]="structureID" optionLabel="sigle" optionValue="id"
+                    [filter]="true" filterBy="sigle" [showClear]="true"  [options]="structures" placeholder="Selectionner...">
+                    </p-dropdown> 
+                </div>
+                <div class="p-fluid p-col-2 col-md-2">
+                    <h6>Périodes (annnées)</h6>
+                    <p-dropdown (onChange)="selectAnnee($event)" name="anneeId" #anneeId="ngModel" [(ngModel)]="annee" optionLabel="nbAnnee" optionValue="nbAnnee"  
+                    [filter]="true" filterBy="nbAnnee" [showClear]="true" [options]="couvertures" placeholder="Selectionner..."> </p-dropdown> 
+                </div>  
+                <div class="p-fluid p-col-1 col-md-1">
+                    <h6>Recherche</h6>
+                    <p-button label="Rech.." icon="pi pi-search" iconPos="right" (onClick)="loadStats()"></p-button>
+                </div>
+            </div> 
+        </form>
+    </div>
+</div>
+
+<div class="row" style="text-align: center">
+    <div class="col-12 col-lg-12" style="max-width: 100vw; overflow: auto">
+        <br>
+        <h6 style="margin-top: 10px; margin-bottom: 10px;">{{globalLabel}}</h6>
+        <br>
+        <p-card>
+            <p-chart type="line" [data]="globalLinesData" [options]="basicOptions" style="max-width: 100vw; overflow: auto"></p-chart>
+        </p-card>
+    </div>
+</div>
+
+<div class="row" style="text-align: center">
+    <div class="col-11 col-lg-12">
+        <br>
+        <h6 style="margin-top: 10px; margin-bottom: 10px;">Résumés des données</h6>
+        <br>
+        <p-card>
+            <p-table #dt [value]="evolutions" responsiveLayout="scroll">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>#</th>
+                        <th>Exercice</th>
+                        <th>Ministere</th>
+                        <th>Structure</th> 
+                        <th>Appréciation</th>
+                        <th>Moyenne</th>
+                        <th>Action</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-data>
+                    <tr>
+                        <td>{{data.id}}</td>
+                        <td>{{data.exercice}}</td>
+                        <td>{{data.ministere}}</td>
+                        <td>{{data.structure}}</td>
+                        <td>{{data.appreciation}}</td>
+                        <td>{{data.moyenne}}</td> 
+                        <td>
+                             
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card>
+    </div>
+</div>

@@ -1,0 +1,138 @@
+<div class="p-fluid grid">
+  <!-- premier bloc -->
+
+  <!-- deuxième bloc-->
+  <div class="p-fluid p-col-12 col-md-12 rightcontent">
+
+    <div class="p-fluid grid">
+      <div class="p-fluid p-col-12 col-md-6">
+          <div> <b> Programme:</b> {{programmationForEvaluationDTO.projet? programmationForEvaluationDTO.projet.programme?.code: '-'}}</div>
+              <p>
+                  {{programmationForEvaluationDTO.projet? programmationForEvaluationDTO.projet.programme?.libelle: '-'}}
+              </p>
+      </div>
+      <div class="p-fluid p-col-12 col-md-6">
+          <div> <b>Projet:</b> </div>
+          <p>
+              {{programmationForEvaluationDTO.projet? programmationForEvaluationDTO.projet.libelle : '-'}}
+          </p>
+          <!-- Objectif operationnel 1.1 -->
+      </div>
+  </div>
+  <p-divider></p-divider>
+
+      <div class="p-fluid grid">
+          <div class="p-fluid p-col-12 col-md-6">
+              <div> <b>Action:</b>{{programmationForEvaluationDTO.objectif? programmationForEvaluationDTO.objectif.action?.code : '-'}}</div>
+              <p>
+                  {{programmationForEvaluationDTO.objectif? programmationForEvaluationDTO.objectif.action?.libelle : '-'}}
+              </p>
+          </div>
+          <div class="p-fluid p-col-12 col-md-6">
+              <div> <b>Objectif operationnel</b>: {{programmationForEvaluationDTO.objectif? programmationForEvaluationDTO.objectif.code: '-'}}</div>
+              <p>
+                  {{programmationForEvaluationDTO.objectif? programmationForEvaluationDTO.objectif.libelle: '-'}}
+              </p>
+          </div>
+      </div>
+
+      <p-divider></p-divider>
+      <div class="p-fluid grid">
+          <div class="p-fluid p-col-12 col-md-6">
+              <div> <b>Activité:</b> {{programmationForEvaluationDTO.code? programmationForEvaluationDTO.code: '-'}}</div>
+              <!-- <p>
+                There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected.
+            </p> -->
+          </div>
+          <div class="p-fluid p-col-12 col-md-6">
+              <div>{{programmationForEvaluationDTO.activite? programmationForEvaluationDTO.activite.libelle: '-'}}</div>
+              <!-- <p>
+                Contrary to popular belief, Lorem Ipsum is not simply class 2000 years old.Lorem Ipsum is not simply class 2000
+            </p> -->
+          </div>
+      </div>
+      <p-divider></p-divider>
+        <div class="p-fluid grid">
+            <div class="p-fluid p-col-12 col-md-6">
+                <div> <b>Coût réel:</b>{{programmationForEvaluationDTO.coutReel}}</div>
+            </div>
+            <div class="p-fluid p-col-12 col-md-6">
+                <div> <b>Coût prévisionnel</b>: {{programmationForEvaluationDTO.coutPrevisionnel}}</div>
+            </div>  
+        </div>
+        <p-divider></p-divider>
+        <div class="p-fluid grid">
+            <div class="p-fluid p-col-12 col-md-6">
+                <div> <b>Résultats attendus:</b>{{programmationForEvaluationDTO.resultatsAttendus}}</div>
+            </div>
+            <div class="p-fluid p-col-12 col-md-6">
+                <div> <b>Résultats atteints</b>: {{programmationForEvaluationDTO.resultatsAtteints ? programmationForEvaluationDTO.resultatsAtteints : '-'}}</div>
+            </div>
+        </div>
+        <p-divider></p-divider>
+        <div class="p-fluid grid">
+            <div class="p-fluid p-col-12 col-md-6">
+                <div> <b>Taux:</b>{{programmationForEvaluationDTO.taux}}</div>
+            </div>
+        </div>
+        <p-divider></p-divider>
+      <div class="p-fluid grid row-margin">
+          <div class="p-fluid p-col-12 col-md-6 rowcontent">
+              <div> <b>Indicateur</b></div>
+          </div>
+          <div class="p-fluid p-col-12 col-md-6 rowcontent">
+            <!-- {{programmationForEvaluationDTO.indicateur}} -->
+          </div>
+      </div>
+
+      <div class="p-fluid grid row-margin">
+          <div class="p-fluid p-col-12 col-md-6 rowcontent">
+              <div> <b>Cible:</b> {{programmationForEvaluationDTO.cible}}</div>
+          </div>
+          <div class="p-fluid p-col-12 col-md-6 rowcontent">
+              {{programmationForEvaluationDTO.cible}}
+          </div>
+      </div>
+      <!-- <p-divider></p-divider> -->
+      <!-- Debut table -->
+
+      <p-table #dt [value]="taches" [paginator]="false" styleClass="p-datatable-sm">
+
+          <ng-template pTemplate="header">
+              <tr>
+                  <th pSortableColumn="libelle">Tâches
+                      <!-- <p-sortIcon field="tache"></p-sortIcon> -->
+                  </th>
+                  <th pSortableColumn="valeurCible">Valeur cible
+                      <!-- <p-sortIcon field="valeurCible"></p-sortIcon> -->
+                  </th>
+                  <th pSortableColumn="poids">Poids
+                      <!-- <p-sortIcon field="poids"></p-sortIcon> -->
+                  </th>
+              </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-tache>
+              <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" editable="true">
+                  <td>{{tache.libelle}} </td>
+                  <td>{{tache.valeur}} </td>
+                  <td>{{tache.ponderation}}% </td>
+              </tr>
+          </ng-template>
+      </p-table>
+
+      <br><br>
+      <!-- Fin Table -->
+  </div>
+  <!-- Fin deuxième bloc-->
+  <div class="p-fluid grid">
+      <div class="p-fluid p-col-12 col-md-1">
+      </div>
+      <div class="p-fluid p-col-12 col-md-1">
+          <!-- <button pButton pRipple type="submit" label="Soumettre" class="p-button-raised p-button-success  "></button> -->
+      </div>
+  </div>
+</div>
+<div class="p-ml-auto text-right">
+<button type="reset" label="Fermer" (click)="onReturn()" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+
+</div>

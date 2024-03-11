@@ -1,0 +1,169 @@
+<!-- Liste des indicateurs d'impact Table primeNg -->
+<div>
+  <p-card>
+      <!-- ToolBar -->
+      <!-- <app-panel-header header="La liste des indicateurs d'impact" icon="fa fa-list fa-3x "> </app-panel-header> -->
+      <p-divider></p-divider>
+      <div class="p-d-flex">
+          <app-crud-toolbar *ngIf="this.authService.checkPermission(this.permissions, ['ROLE_ADMIN','ROLE_DIR_DGESS','ROLE_RESP_DGESS'])" [enableCreate]="enableCreate" (create)="onCreate()">
+          </app-crud-toolbar>
+          <div class="p-ml-auto">
+              <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+              <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+              </p-progressSpinner>
+          </div>
+      </div>
+      <p-divider></p-divider>
+
+      <p-table #dt [value]="indicateurs" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading" (onLazyLoad)="load($event)" [totalRecords]="totalRecords" [globalFilterFields]="['libelle','valeur','effetAttendu']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+          [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+
+          <ng-template pTemplate="caption">
+              <div class="row">
+                  <div class="col" style="padding: 8px; margin-left: 8px">
+                      <span>Liste des indicateurs </span>
+                  </div>
+                  <div class="col text-right">
+                      <span class="p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+                        placeholder="Recherche..." />
+                    </span>
+                  </div>
+              </div>
+
+          </ng-template>
+
+          <ng-template pTemplate="header">
+              <tr>
+                  <th pSortableColumn="type">Type
+                  <p-sortIcon field="type"></p-sortIcon>
+                 </th>
+                  <th pSortableColumn="libelle">Libéllé
+                      <p-sortIcon field="libelle"></p-sortIcon>
+                  </th>
+
+                  <th pSortableColumn="valeur">Valeur
+                      <p-sortIcon field="valeur"></p-sortIcon>
+                  </th>
+
+                  <th pSortableColumn="objectifStrategiques.libelle">Objectif
+                      <p-sortIcon field="objectifStrategiques.libelle"></p-sortIcon>
+                  </th>
+
+                  <th [style]="{'width':'150px'}">Actions</th>
+              </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-indicateur>
+              <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="indicateur">
+                  <td>{{indicateur.typeIndicateur}} </td>
+                  <td>{{indicateur.libelle}} </td>
+
+                  <td>{{indicateur.valeur}}% </td>
+
+                  <td>{{indicateur.objectif? indicateur.objectif.libelle: '-' }} </td>
+                  <td>
+                      <app-actions-toolbal-iud (info)="onInfo(indicateur)" [enableBtnInfo]="enableBtnInfo" (edit)="onEdit(indicateur)" [enableBtnEdit]="enableBtnEdit" (delete)="onDelete(indicateur)" [enableBtnDelete]="enableBtnDelete">
+                      </app-actions-toolbal-iud>
+                  </td>
+              </tr>
+          </ng-template>
+      </p-table>
+  </p-card>
+
+
+  <!-- Dialog-->
+  <p-dialog [(visible)]="showDialog" [modal]="true" [maximizable]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '60vw'}">
+      <ng-template pTemplate="header">
+          <i class="{{isEditing() ? 'pi-pencil' : 'pi-plus'}} pi p-mr-1"></i>
+          <span class="mr-auto">
+    {{indicateur.id ? 'Modifier' : 'Ajouter'}} un indicateur
+</span>
+      </ng-template>
+      <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+      <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+      <p-divider></p-divider>
+      <!-- Form -->
+      <form (ngSubmit)="save()" #dtf="ngForm">
+          <div class="p-fluid grid">
+
+            <div class="p-fluid p-col-12 col-md-12">
+              <label for="typeIndicateur">Type</label>
+              <p-dropdown [options]="indicateurTypes"  optionValue="libelle" optionLabel="libelle" [(ngModel)]="indicateur.typeIndicateur" name="typeIndicateur" placeholder="Selectionner un type" inputId="typeIndicateur" [filter]="true" filterBy="libelle" [showClear]="true"  (onChange)="getTypeObjectif($event)"></p-dropdown>
+            </div>
+
+              <div class="p-fluid p-col-12 col-md-12">
+                  <label for="objectif">Objectif</label>
+                  <p-dropdown [(ngModel)]="indicateur.objectif" optionLabel="libelle" inputId="objectif" [filter]="true" filterBy="libelle" [showClear]="true" [options]="objectifs" name="objectif" placeholder="Selectionner...">
+                  </p-dropdown>
+              </div>
+
+
+              <div class="p-fluid p-col-12 col-md-6">
+                  <label for="libelle">Libéllé</label>
+                  <input id="libelle" name="libelle" #libelle="ngModel" [(ngModel)]="indicateur.libelle" pInputText required />
+
+              </div>
+
+
+
+
+              <div class="p-fluid p-col-12 col-md-6">
+                  <label for="valeur">Valeur</label>
+                  <input id="valeur" name="valeur" type="number" #valeur="ngModel" [(ngModel)]="indicateur.valeur" pInputText required />
+
+              </div>
+
+
+          <div class="p-fluid p-col-12 col-md-6">
+              <label for="description">Description</label>
+              <textarea id="description" name="description" #description="ngModel" [(ngModel)]="indicateur.description" rows="4" pInputTextarea ></textarea>
+
+          </div>
+        </div>
+          <p-divider></p-divider>
+          <div class="p-ml-auto text-right">
+              <button type="reset" label="Annuler" (click)="showDialog=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+              <button type="submit" [disabled]="!dtf.form.valid" label="{{isEditing() ? 'Enregistrer' : 'Ajouter'}}" icon="pi {{isEditing() ? 'pi-save' : 'pi-plus'}}" class="p-button-raised p-button-text {{isEditing() ? 'p-button-primary' : 'p-button-success'}}" pButton>
+                    </button>
+          </div>
+      </form>
+  </p-dialog>
+
+  <!-- details indicateur -->
+
+  <p-dialog [(visible)]="indicateurDetail" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw'}">
+    <ng-template pTemplate="header">
+
+      <span class="p-mr-auto"> <h6>DETAILS INDICATEUR</h6></span>
+    </ng-template>
+      <div class="row">
+           <div class="col-md-12">
+             <ul class="list-group list-group-flush">
+               <li class="list-group-item list-group-item-action">
+                 <span class="va-m"><span class="font-weight-bold">Libelle:</span>  {{indicateur.libelle}}</span>
+               </li>
+               <li class="list-group-item list-group-item-action">
+                <span class="va-m"><span class="font-weight-bold"> Type:</span>   {{indicateur.typeIndicateur}}</span>
+              </li>
+              <li class="list-group-item list-group-item-action">
+                <span class="va-m"><span class="font-weight-bold">  Objectif:</span>   {{indicateur.objectif ? indicateur.objectif.libelle : '-'}}</span>
+              </li>
+              <li class="list-group-item list-group-item-action">
+                <span class="va-m"><span class="font-weight-bold">  Valeur:</span>   {{indicateur.valeur}}</span>
+              </li>
+              <li class="list-group-item list-group-item-action">
+                <span class="va-m"><span class="font-weight-bold">  Description:</span>   {{indicateur.description}}</span>
+              </li>
+             </ul>
+          </div>
+      </div>
+       <p-divider></p-divider>
+       <div class="p-ml-auto text-right">
+           <button description="reset" label="Fermer" (click)="indicateurDetail=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+
+       </div>
+    </p-dialog>
+  <!-- Confirmation -->
+  <app-confirmation></app-confirmation>
+</div>

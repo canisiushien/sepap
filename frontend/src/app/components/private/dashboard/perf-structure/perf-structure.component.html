@@ -1,0 +1,38 @@
+<div class="row">
+    <div class="col-13 col-lg-4">
+        <div class="card radius-15 bg-primary-blue">
+            <div class="card-body" style="text-align: center">
+                <h5>Ministère concerné</h5>
+                <h6>{{ministereBundle?.ministereCode}}</h6> 
+            </div>
+        </div>
+    </div>
+
+    <div class="col-13 col-lg-4">
+        <div class="card radius-15 bg-rose">
+            <div class="card-body" style="text-align: center">
+                <h5>Périodicité : {{ministereBundle?.periodicite}}</h5>
+                <h6>Période concernée : {{ministereBundle?.periode}}</h6> 
+            </div>
+        </div>
+    </div>
+
+    <div class="col-13 col-lg-4">
+        <div class="card radius-15 bg-sunset">
+            <div class="card-body" style="text-align: center">
+                <h5>Date concernée</h5>
+                <h6>{{ministereBundle?.dateJour}}</h6>
+            </div>
+        </div>
+    </div> 
+</div> 
+<div class="row" style="text-align: center">
+    <div class="col-11 col-lg-12">
+        <br>
+        <h6 style="margin-top: 10px; margin-bottom: 10px;">Représentation des performances des structures du ministère</h6>
+        <br>
+        <p-card>
+            <p-chart type="bar" [data]="stackedData" [options]="stackedOptions"></p-chart>
+        </p-card>
+    </div>
+</div>

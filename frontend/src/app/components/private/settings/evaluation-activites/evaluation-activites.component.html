@@ -1,0 +1,183 @@
+<p-toast></p-toast>
+
+<div class="row" style="height: 100%;">
+  <div class="p-fluid p-col-12 col-md-4">
+
+    <nb-card>
+      <nb-card-header>
+        <div class="row activite">
+          <label>Evaluer une activité </label>
+
+        </div>
+      </nb-card-header>
+      <nb-card-body>
+
+        <div class="col-md-12">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item list-group-item-action">
+              <span class="va-m"><span class="font-weight-bold">Activité:</span>
+                {{programmationForEvaluationDTO.activite ? programmationForEvaluationDTO.activite.libelle:'-'}}</span>
+            </li>
+            <li class="list-group-item list-group-item-action">
+              <span class="va-m"><span class="font-weight-bold"> Financement:</span>
+                {{programmationForEvaluationDTO.sourceFinancement ?
+                programmationForEvaluationDTO.sourceFinancement.libelle: '-'}}</span>
+            </li>
+            <li class="list-group-item list-group-item-action">
+              <span class="va-m"><span class="font-weight-bold"> Cible:</span> {{programmationForEvaluationDTO ?
+                programmationForEvaluationDTO.cible : '-'}}</span>
+            </li>
+            <li class="list-group-item list-group-item-action">
+              <span class="va-m"><span class="font-weight-bold"> Périodes:</span>
+                {{programmationForEvaluationDTO.periodes}}</span>
+            </li>
+          </ul>
+        </div>
+
+      </nb-card-body>
+      <!-- <nb-card-footer>By Wikipedia</nb-card-footer> -->
+    </nb-card>
+  </div>
+
+  <div class="p-fluid p-col-12 col-md-8">
+
+    <nb-card>
+      <nb-card-header>
+
+
+        <div class="row tache">
+
+          <div class="p-fluid p-col-12 col-md-6">
+            <p class="tache"> Période en cours </p>
+            <b class="tache">{{programmationForEvaluationDTO.periodeActuelle ? programmationForEvaluationDTO.periodeActuelle : '-'}} </b>
+          </div>
+          <div class="p-fluid p-col-12 col-md-3">
+            <p class="tache"> Valeur actuelle </p>
+
+            <b class="tache"> {{programmationForEvaluationDTO.valeurActuelle}} </b>
+          </div>
+          <div class="p-fluid p-col-12 col-md-3">
+            <p class="tache"> Taux </p>
+            <b class="tache">{{programmationForEvaluationDTO.tauxActuel}}% </b>
+          </div>
+
+        </div>
+      </nb-card-header>
+      <nb-card-body>
+        <div>
+          <p-card>
+            <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+            <p-table #dt [value]="taches" [paginator]="true" [rows]="recordsPerPage" [totalRecords]="totalRecords"
+              currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+              [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+              <ng-template pTemplate="caption">
+                <div class="row">
+                  <div class="col tache" style="padding: 8px; margin-left: 8px">
+                    <span>Liste des tâches</span>
+                  </div>
+                </div>
+              </ng-template>
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Tâche</th>
+                  <th>Executée</th>
+                  <th>Valeur</th>
+                  <th>Poids</th>
+                  <th>Document</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-taches[rowIndex]>
+
+                <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex">
+                  <td> {{taches[rowIndex].libelle}}</td>
+                  <td style=" text-align: center"> <input type="checkbox" name="checked"
+                      [(ngModel)]="taches[rowIndex].execute" (change)="getCheckedExecute(rowIndex)" />
+                    <!--p-checkbox  [(ngModel)]="checked" [binary]="true" inputId="binary"></p-checkbox-->
+                  </td>
+                  <td *ngIf="taches[rowIndex].valeur ==1"><input name="valeur{{rowIndex}}" id="valeur" [(ngModel)]="taches[rowIndex].valeur" readonly> </td>
+                  <td *ngIf="taches[rowIndex].valeur !=1"><input name="valeur{{rowIndex}}" id="valeur" [(ngModel)]="taches[rowIndex].valeur"> </td>
+                  <td>{{taches[rowIndex].ponderation}}% </td>
+                  <td>
+                    <button *ngIf="!taches[rowIndex].fichierJoint" pButton pRipple type="button" icon="pi pi-upload"
+                      pTooltip="Charger fichier" class="p-button-raised p-button-success mr-2"
+                      (click)="ajouterDocument(taches[rowIndex].id)"></button>
+                    <button *ngIf="taches[rowIndex].fichierJoint" pButton pRipple type="button" icon="pi pi-cloud"
+                      pTooltip="Modifier le fichier" class="p-button-raised p-button-danger mr-2"
+                      (click)="ajouterDocument(taches[rowIndex].id)"></button>
+                  </td>
+
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-card>
+        </div>
+      </nb-card-body>
+      <nb-card-footer>
+        <div class="row">
+          <div class="p-fluid p-col-12 col-md-6">
+            <p style="color: red;">Pour les évaluations nécessitant des réponses O/N, les valeurs sont:O=1 et N=0</p>
+          </div>
+          <div class="p-fluid p-col-12 col-md-3">
+            <button pButton type="button" label="Evaluer" (click)="onEvaluation()"></button>
+          </div>
+          <div class="p-fluid p-col-12 col-md-3">
+            <button pButton type="button" label="Terminer" (click)="onTerminer()"></button>
+          </div>
+        </div>
+      </nb-card-footer>
+    </nb-card>
+
+  </div>
+
+  <!-- document -->
+
+  <p-dialog [(visible)]="documentDialog" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+    [style]="{width: '40vw'}">
+    <ng-template pTemplate="header">
+      <i class="pi-plus pi p-mr-1"></i>
+      <span class="mr-auto">
+        Ajouter document
+      </span>
+    </ng-template>
+    <!-- <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar> -->
+    <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+    <p-divider></p-divider>
+    <!-- Form -->
+    <form (ngSubmit)="ajouterTacheDocument()" #dtf="ngForm">
+      <div class="p-fluid grid">
+        <div class="p-fluid p-col-12 col-md-12">
+          <label for="libelle">Intitulé document</label>
+          <input id="libelle" name="libelle" [(ngModel)]="documentDTO.libelle" pInputText required />
+        </div>
+
+        <div class="p-fluid p-col-12 col-md-12">
+          <label for="description"> Fichier</label>
+          <p-fileUpload id="description"
+             mode="advanced" [showCancelButton]="false" [auto]="true" [customUpload]="true" accept="application/pdf"
+            [showUploadButton]="false" chooseLabel="Selectionnez" (uploadHandler)="onSelectFile($event)">
+            <ng-template pTemplate="content" let-files>
+              <div *ngIf="!files.length" class="text-danger text-center p-p-5 app-yellow">
+                <i class="pi pi-upload" style="font-size: 2rem"></i>
+                <div>
+                  <span>Selectionnez ou glissez et deplacez un fichier ici (format accepté pdf)</span>
+                </div>
+              </div>
+            </ng-template>
+          </p-fileUpload>
+        </div>
+
+      </div>
+
+      <p-divider></p-divider>
+      <div class="p-ml-auto text-right">
+        <button type="reset" label="Annuler" (click)="documentDialog=false"
+          class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+        <button type="submit" [disabled]="!dtf.form.valid" label="Valider"
+          class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+      </div>
+    </form>
+  </p-dialog>
+
+</div>
+<app-confirmation></app-confirmation>

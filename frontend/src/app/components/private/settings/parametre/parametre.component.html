@@ -1,0 +1,128 @@
+<div>
+  <p-card>
+    <!-- ToolBar -->
+    <div class="p-d-flex">
+        <app-crud-toolbar [enableCreate]="enableCreate"  (create)="onCreate()" >
+        </app-crud-toolbar>
+        <div class="p-ml-auto">
+            <p-message *ngIf="message" [severity]="message.severity" [text]="message.summary"></p-message>
+            <p-progressSpinner *ngIf="isOpInProgress" strokeWidth="4" [style]="{width: '50px', height: '50px'}">
+            </p-progressSpinner>
+        </div>
+    </div>
+    <p-divider></p-divider>
+
+    <p-table #dt [value]="parametres" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading" (onLazyLoad)="load($event)" [totalRecords]="totalRecords" [globalFilterFields]="['echeance','dateDebutExercice','dateFinExercice','verrouille']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+        [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" styleClass="p-datatable-sm">
+
+        <!-- <p-contextMenu #cm [model]="contextMenuItems"></p-contextMenu>
+    <p-table #dt [value]="agents" [paginator]="true" [rows]="recordsPerPage" [loading]="isLoading" (onLazyLoad)="load($event)" [totalRecords]="totalRecords" [globalFilterFields]="['matricule','nom','prenom','email']" currentPageReportTemplate="Affichage {first} à {last} de {totalRecords} élements"
+    [showCurrentPageReport]=true [rowsPerPageOptions]="[10, 20]" [(selection)]="selection" selectionMode="single" styleClass="p-datatable-sm" [(contextMenuSelection)]="selection" [contextMenu]="cm"> -->
+
+        <ng-template pTemplate="caption">
+            <div class="text-right p-d-flex">
+
+                <span class="p-ml-auto p-mr-2 p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="dt.filterGlobal($any($event.target)!.value, 'contains')"
+                    placeholder="Recherche..." />
+            </span>
+            </div>
+
+        </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="echeance">Echéance
+                    <p-sortIcon field="echeance"></p-sortIcon>
+                </th>
+                <th pSortableColumn="dateDebutSaisit">Date début
+                    <p-sortIcon field="dateDebutSaisit"></p-sortIcon>
+                </th>
+                <th pSortableColumn="dateFinSaisit">Date fin
+                    <p-sortIcon field="dateFinSaisit"></p-sortIcon>
+                </th>
+                <th pSortableColumn="verrouille">Verrouillé
+                  <p-sortIcon field="verrouille"></p-sortIcon>
+              </th>
+
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-parametre>
+            <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="parametre">
+                <td>{{parametre.echeance}} </td>
+                <td>{{parametre.dateDebutSaisit | date:'dd-MM-yyyy'}} </td>
+                <td>{{parametre.dateFinSaisit | date:'dd-MM-yyyy'}} </td>
+                <td *ngIf="parametre.verrouille"><p-tag styleClass="p-mr-2" severity="danger" value="verrouillé" [rounded]="true"></p-tag></td>
+                <td *ngIf="!parametre.verrouille"><p-tag styleClass="p-mr-2" severity="success" value="non verrouillé" [rounded]="true"></p-tag></td>
+
+                <td>
+
+                    <app-actions-toolbal-iud (info)="onInfo(parametre)" [enableBtnInfo]="enableBtnInfo" (edit)="onEdit(parametre)" [enableBtnEdit]="enableBtnEdit" (delete)="onDelete(parametre)" [enableBtnDelete]="enableBtnDelete">
+                    </app-actions-toolbal-iud>
+
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card>
+
+    <!-- Dialog-->
+    <p-dialog [(visible)]="showDialog" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}" [style]="{width: '50vw', height:'100vw'}">
+      <ng-template pTemplate="header">
+        <i class="{{isEditing() ? 'pi-pencil' : 'pi-plus'}} pi p-mr-1"></i>
+        <span class="mr-auto">
+          {{parametre.id ? 'Modifier' : 'Ajouter'}} un paramètre
+        </span>
+      </ng-template>
+      <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+      <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+
+      <form (ngSubmit)="save()" #dtf="ngForm">
+
+          <div class="p-fluid p-grid">
+              <div class="p-fluid p-col-12 p-md-6">
+                  <label for="echeance">Echéance</label>
+                  <input id="echeance" name="echeance" #echeance="ngModel" [(ngModel)]="parametre.echeance" pInputText required />
+
+              </div>
+          </div>
+          <br>
+          <div class="p-fluid p-grid">
+              <div class="p-fluid p-col-12 p-md-6">
+                  <label for="icon">Date début</label>
+                  <p-calendar name="dateDebutSaisit" #dateDebutSaisit="ngModel" [(ngModel)]="debut" dateFormat="dd-mm-yy" inputId="dateformat" [showIcon]="true" inputId="icon"></p-calendar>
+              </div>
+          </div>
+
+
+          <br>
+          <div class="p-fluid p-grid">
+              <div class="p-fluid p-col-12 p-md-6">
+                  <label for="icon">Date fin</label>
+                  <p-calendar name="dateFinSaisit" #dateFinSaisit="ngModel" [(ngModel)]="fin" dateFormat="dd-mm-yy" inputId="dateformat" [showIcon]="true" inputId="icon"></p-calendar>
+              </div>
+              <div>
+                <td *ngIf=" debut> fin " ><p> Veuillez entrer une date de début anterieure à la date de fin</p></td>
+               </div>
+          </div>
+          <br>
+          <div class="p-fluid p-grid" [hidden]="checkSelected">
+              <div class="p-fluid p-col-12 p-md-6">
+                  <p>Verrouillé</p>
+                  <p-inputSwitch name="verrouille" (onChange)="handleChange($event)" [(ngModel)]="parametre.verrouille"></p-inputSwitch>
+              </div>
+          </div>
+          <br>
+          <p-divider></p-divider>
+          <div class="p-ml-auto text-right">
+              <button type="reset" label="Annuler" (click)="showDialog=false" class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+              <button type="submit" [disabled]="!dtf.form.valid" label="{{isEditing() ? 'Enregistrer' : 'Ajouter'}}" icon="pi {{isEditing() ? 'pi-save' : 'pi-plus'}}" class="p-button-raised p-button-text {{isEditing() ? 'p-button-primary' : 'p-button-success'}}" pButton>
+                      </button>
+          </div>
+      </form>
+  </p-dialog>
+  <!-- Confirmation -->
+  <app-confirmation></app-confirmation>
+</div>

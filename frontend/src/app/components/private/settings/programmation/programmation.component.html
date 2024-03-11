@@ -1,0 +1,501 @@
+<p-tabMenu [model]="items" [activeItem]="items[1]"></p-tabMenu>
+<p-toast position="bottom-center"></p-toast>
+<!--nb-card-->
+  <p-card>
+    <nb-stepper #stepper>
+      <nb-step [stepControl]="firstForm" label="Liaison Activité">
+        <form [formGroup]="firstForm" (ngSubmit)="onFirstSubmit()" class="step-container">
+
+          <nb-card status="info">
+            <nb-card-header>Liaison Activité-produit</nb-card-header>
+            <p-card>
+              <div class="p-fluid grid">
+                <!-- <div class="p-fluid p-col-12 col-md-6">
+                                    <label for="structure">Structure </label>
+                                    <p-dropdown [(ngModel)]="structure" formControlName="structure"
+
+                                        optionLabel="libelle" optionValue="id" inputId="structure"
+                                        [options]="structures" name="structure" [filter]="true" filterBy="libelle" [showClear]="true"  placeholder="Selectionner...">
+                                    </p-dropdown>
+                                </div> -->
+
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="exercice">Exercice <span class="text-danger">*</span> </label>
+                  <select name="exercice" formControlName="exercice" class="form-control">
+                    <option *ngFor="let exercice of exercices" [value]="exercice.debut" [selected]="exercice.debut">
+                      {{exercice.debut | date:'yyyy'}}
+                    </option>
+                  </select>
+                </div>
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="projet">Projet <span class="text-danger">*</span> </label>
+                  <p-dropdown formControlName="projet" optionLabel="libelle" inputId="projet"
+                    [options]="projets" name="projet" [filter]="true" filterBy="libelle" [showClear]="true"
+                    placeholder="Selectionner..." [required]= "true">
+                  </p-dropdown>
+                </div>
+
+                <div class="p-fluid p-col-12 col-md-6 mb-3">
+                  <label for="objectif">Objectif <span class="text-danger">*</span> </label>
+                  <p-dropdown  formControlName="objectif" optionLabel="libelle" inputId="objectif"
+                    [options]="objectifs" name="objectif" [filter]="true" filterBy="libelle" [showClear]="true"
+                    placeholder="Selectionner..." [required]= "true">
+                  </p-dropdown>
+                </div>
+                <div class="p-fluid p-col-12 col-md-6">
+                  <label for="activite">Intitulé de l'activité <span class="text-danger">*</span>
+                  </label>
+
+                  <div class="d-flex justify-content-between b-bottom">
+
+                    <p-dropdown class="p-fluid p-col-12 ps-2" id="space"
+                      formControlName="activite" optionLabel="libelle" inputId="activite" [options]="activites"
+                      name="activite" [filter]="true" filterBy="libelle" [showClear]="true"
+                      placeholder="Selectionner..." [required]="true">
+                    </p-dropdown>
+
+                    <button pButton type="button" (click)="onCreateActivite()" icon="pi pi-plus"
+                      iconPos="left"></button>
+                  </div>
+
+                </div>
+
+                <div class="p-fluid p-col-12 col-md-6 mt-10">
+                  <label for="estPrioritaire" class="mr-3">Prioritaire</label>
+                  <p-checkbox id="estPrioritaire" name="estPrioritaire"  [binary]="true" inputId="binary"  formControlName="estPrioritaire"></p-checkbox>
+                </div>
+              </div>
+
+            </p-card>
+          </nb-card>
+
+          <button nbButton nbStepperNext>Suivant</button>
+        </form>
+      </nb-step>
+      <nb-step [stepControl]="secondForm" label="Programmation">
+        <form [formGroup]="secondForm" (ngSubmit)="onSecondSubmit()" class="step-container">
+          <div class="grid">
+            <div class="col">
+              <nb-card size="medium" status="info">
+                <nb-card-header>Programmation</nb-card-header>
+                <nb-card-body>
+                  <div class="p-fluid grid">
+                    <div class="p-fluid p-col-12 col-md-12">
+                      <label for="sourceFinancement">Source de financement <span class="text-danger">*</span> </label>
+                      <div class="d-flex justify-content-between b-bottom">
+
+                        <p-dropdown class="p-fluid p-col-12 ps-2" id="space"
+                          formControlName="sourceFinancement" optionLabel="libelle" [options]="sourceFinancements"
+                          name="sourceFinancement" [filter]="true" filterBy="libelle" [showClear]="true"
+                          placeholder="Selectionner..." [required]="true">
+                        </p-dropdown>
+
+                        <button pButton type="button" (click)="onCreateSource()" icon="pi pi-plus"
+                          iconPos="left"></button>
+                      </div>
+                    </div>
+
+                    <div class="p-fluid p-col-12 col-md-12">
+                      <br>
+                      <label for="periodes">Période <span class="text-danger">*</span> </label>
+                      <div class="col-sm-6 d-flex">
+                        <div *ngFor="let periode of selectedPeriode; let i = index" class="p-2">
+
+                          <input type="checkbox" name="listePeriode" [(ngModel)]="periode.valeur"
+                            formControlName="listePeriode" class="ps-2" (change)="getCheckedPeriodeList(i)" />
+                          <label [for]="periode.id">{{periode.libelle}}</label>
+
+                        </div>
+                      </div>
+                    </div>
+                    <div class="p-fluid p-col-12 col-md-12">
+
+                      <label for="coutPrevisionnel">Coût prévisionnel <span class="text-danger">*</span> </label>
+
+                      <p-inputNumber id="montant" name="montant" mode="decimal" [minFractionDigits]="2"
+                        formControlName="coutPrevisionnel"
+                        [ngClass]="{'form-control-danger': secondForm.invalid && (secondForm.dirty || secondForm.touched)}">
+                      </p-inputNumber>
+                    </div>
+
+                    <div class="p-fluid p-col-12 col-md-12">
+                      <label for="cible">Cible <span class="text-danger">*</span></label>
+                      <p-inputNumber mode="decimal" formControlName="cible" [useGrouping]="false"
+                        [ngClass]="{'form-control-danger': secondForm.invalid && (secondForm.dirty || secondForm.touched)}">
+                      </p-inputNumber>
+                    </div>
+                    <div class="p-fluid p-col-12 col-md-12">
+                      <label for="resultatsAttendus">Résultats attendus <span class="text-danger">*</span></label>
+                      <textarea id="resultatsAttendus" formControlName="resultatsAttendus"
+                      [ngClass]="{'form-control-danger': secondForm.invalid && (secondForm.dirty || secondForm.touched)}" rows="4" pInputTextarea ></textarea>
+                    </div>
+                    <div class="p-fluid p-col-12 col-md-12">
+                      <label for="indicateur">Indicateur <span class="text-danger">*</span></label>
+                      <textarea id="indicateur" formControlName="indicateur"
+                      [ngClass]="{'form-control-danger': secondForm.invalid && (secondForm.dirty || secondForm.touched)}" rows="4" pInputTextarea ></textarea>
+                    </div>
+
+                    <div class="d-flex form-group col-sm-12">
+                      <div class="p-2 flex-grow-1">L'activité a t-elle des tâches? <span class="text-danger">*</span>
+                      </div>
+                      <div class="p-2" *ngFor="let choice of choix;  let i = index">
+                        <input type="checkbox" name="checked" [(ngModel)]="choice.checked" formControlName="checked"
+                          class="ps-2" (change)="onCheckboxChange(i)" />
+                        <p>{{choice.name }}</p>
+                      </div>
+
+                    </div>
+
+                    <!--label for="sourceFinancement">L'activité a t-elle des taches</label-->
+                    <!--div class="p-formgroup-inline">
+                                                <div class="p-field-checkbox">
+
+                                                    <p-checkbox [(ngModel)]="checked" [binary]="true" inputId="binary"></p-checkbox>
+                                                    <label for="binary">{{checked}}</label>
+                                                </div>
+                                                <div class="p-field-checkbox">
+
+                                                    <p-checkbox [(ngModel)]="checked" [binary]="true" inputId="binary"></p-checkbox>
+                                                    <label for="binary">{{checked}}</label>
+                                                </div>
+                                            </div-->
+
+
+                  </div>
+                </nb-card-body>
+              </nb-card>
+            </div>
+            <div class="col">
+              <nb-card size="medium" status="success">
+                <nb-card-header>Résumé des entrées précedentes</nb-card-header>
+                <nb-card-body>
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item list-group-item-action" *ngFor="let exercice of exercices">
+                          <span class="va-m"><span class="font-weight-bold">Exercice:</span>
+                            {{ exercice.debut | date:'yyyy' }}</span>
+                        </li>
+                        <li class="list-group-item list-group-item-action">
+                          <span class="va-m"><span class="font-weight-bold"> Projet:</span> {{
+                            firstForm.value["projet"].libelle }}</span>
+                        </li>
+                        <li class="list-group-item list-group-item-action">
+                          <span class="va-m"><span class="font-weight-bold">Objectif:</span>
+                            {{ firstForm.value["objectif"].libelle }}</span>
+                        </li>
+                        <li class="list-group-item list-group-item-action">
+                          <span class="va-m"><span class="font-weight-bold">Activité:</span>
+                            {{ firstForm.value["activite"].libelle }}</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </nb-card-body>
+              </nb-card>
+            </div>
+          </div>
+          <button nbButton nbStepperPrevious>Précedent</button>
+          <button nbButton nbStepperNext>Suivant</button>
+        </form>
+      </nb-step>
+      <nb-step [stepControl]="thirdForm" label="Tâches" *ngIf="!singleton">
+        <form [formGroup]="thirdForm" (ngSubmit)="onThirdSubmit()" class="step-container">
+          <div class="row">
+            <div class="col-sm-6">
+              <nb-card status="info">
+                <nb-card-header>Création de tâches</nb-card-header>
+                <p-card>
+
+                  <div class="p-fluid grid">
+                    <div class="p-fluid p-col-12 col-md-6">
+                      <label for="libelle">Intitulé de la tâche <span class="text-danger">*</span></label>
+                      <input nbInput type="text" class="form-control" formControlName="libelle" />
+                    </div>
+
+                    <div class="p-fluid p-col-12 col-md-6">
+                      <label for="ponderation">Pondération <span class="text-danger">*</span></label>
+                      <p-inputNumber mode="decimal" formControlName="ponderation" [min]="0" [maxlength]="3"
+                        [useGrouping]="false"> </p-inputNumber>
+                    </div>
+                    <div class="p-fluid p-col-12 col-md-6">
+                      <label for="valeur">Valeur cible</label>
+                      <p-inputNumber mode="decimal" formControlName="valeur" [useGrouping]="false"> </p-inputNumber>
+
+                    </div>
+
+
+                  </div>
+
+
+                </p-card>
+                <nb-card-footer>
+                  <button pButton label="Ajouter" icon="pi pi-plus" class="p-button-info mr-2" (click)="addTaches()"
+                    [disabled]="boolstep">
+                  </button>
+                  <!--button pButton label="Terminer" icon="pi pi-plus" class="p-button-success mr-2"
+                                        (click)="onTerminer()"> </button-->
+                </nb-card-footer>
+
+
+              </nb-card>
+            </div>
+            <div class="col-sm-6">
+              <nb-card status="success">
+                <nb-card-header>Liste des tâches</nb-card-header>
+                <p-card>
+                  <p-table #dt [value]="taches" [paginator]="false" [rows]="recordsPerPage" [loading]="isLoading"
+                    (onLazyLoad)="null" [totalRecords]="totalRecords" [showCurrentPageReport]=true
+                    styleClass="p-datatable-sm">
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th pSortableColumn="libelle">Libéllé
+                          <p-sortIcon field="libelle"></p-sortIcon>
+                        </th>
+
+                        <th pSortableColumn="ponderation">Pondération
+                          <p-sortIcon field="ponderation"></p-sortIcon>
+                        </th>
+
+                        <th pSortableColumn="valeur">Valeur
+                          <p-sortIcon field="valeur"></p-sortIcon>
+                        </th>
+
+                        <th style="width: 15%">Actions</th>
+
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-tache>
+                      <tr [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="tache">
+                        <td>{{tache.libelle}} </td>
+                        <td>{{tache.ponderation}} </td>
+                        <td>{{tache.valeur}} </td>
+                        <td style="width: 15%">
+                          <app-actions-toolbal-iud (delete)="onDeleteTache(tache)" [enableBtnDelete]="enableBtnDelete">
+                          </app-actions-toolbal-iud>
+
+
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </p-card>
+              </nb-card>
+            </div>
+          </div>
+
+          <button nbButton nbStepperPrevious>Précedent</button>
+          <button nbButton [disabled]='!boolstep' nbStepperNext>Suivant</button>
+        </form>
+      </nb-step>
+      <nb-step [stepControl]="fourForm" label="Confirmation">
+        <form [formGroup]="fourForm" (ngSubmit)="onFourSubmit()" class="step-container">
+          <nb-card status="info" [nbSpinner]="loading" nbSpinnerStatus="danger" nbSpinnerSize="large"
+            nbSpinnerMessage="">
+            <nb-card-header>Recapitulatif</nb-card-header>
+            <nb-card-body>
+              <div class="row">
+                <div class="col-sm-12">
+                  <ul class="list-group list-group-flush">
+
+                    <li class="list-group-item list-group-item-action" *ngFor="let exercice of exercices">
+                      <span class="va-m"><span class="font-weight-bold"> Exercice:</span> {{ exercice.debut |
+                        date:'yyyy' }}</span>
+                    </li>
+                    <li class="list-group-item list-group-item-action">
+                      <span class="va-m"><span class="font-weight-bold"> Projet:</span> {{
+                        firstForm.value["projet"].libelle }}</span>
+                    </li>
+                    <li class="list-group-item list-group-item-action">
+                      <span class="va-m"><span class="font-weight-bold">Objectif:</span>
+                        {{ firstForm.value["objectif"].libelle }}</span>
+                    </li>
+                    <li class="list-group-item list-group-item-action">
+                      <span class="va-m"><span class="font-weight-bold">Activité:</span>
+                        {{ firstForm.value["activite"].libelle }}</span>
+                    </li>
+
+                    <li class="list-group-item list-group-item-action">
+                      <span class="va-m"><span class="font-weight-bold">Source Financement</span>
+                        {{ secondForm.value["sourceFinancement"].libelle }}</span>
+                    </li>
+                    <li class="list-group-item list-group-item-action">
+                      <span class="va-m"><span class="font-weight-bold">Cout Previsionnel:</span>
+                        {{ secondForm.value["coutPrevisionnel"] }}</span>
+                    </li>
+                    <li class="list-group-item list-group-item-action">
+                      <span class="va-m"><span class="font-weight-bold">Cible:</span>
+                        {{ secondForm.value["cible"] }}</span>
+                    </li>
+                    <li class="list-group-item list-group-item-action">
+                      <span class="va-m"><span class="font-weight-bold">Résultats attendus:</span>
+                        {{ secondForm.value["resultatsAttendus"] }}</span>
+                    </li>
+
+                    <li class="list-group-item list-group-item-action">
+                      <span class="va-m"><span class="font-weight-bold">Indicateur de resultat:</span>
+                        {{ secondForm.value["indicateur"] }}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+            </nb-card-body>
+          </nb-card>
+
+          <button nbButton nbStepperPrevious>Précedent</button>
+          <button nbButton (click)="create()" nbStepperNext>Confirmer</button>
+        </form>
+      </nb-step>
+      <nb-step [stepControl]="fiveForm" [hidden]="true" label="Succès">
+        <div class="step-container">
+          <nb-card status="info" *ngIf="isSuccessful">
+            <nb-card-header>Succès</nb-card-header>
+            <nb-card-body class="text-align-center">
+              Votre activité a bien été programmée!
+              <a routerLink="/workspace/toutes-programmations">Voir la liste des programmations</a>
+            </nb-card-body>
+          </nb-card>
+          <nb-card status="info" *ngIf="!isSuccessful">
+            <nb-card-header>Erreur de création</nb-card-header>
+            <nb-card-body class="va-m alert alert-danger" role="alert" *ngIf="dialogErrorMessage">
+              <span> {{dialogErrorMessage !}}</span>
+            </nb-card-body>
+          </nb-card>
+        </div>
+      </nb-step>
+    </nb-stepper>
+  </p-card>
+<!--/nb-card-->
+
+
+<!-- Dialog-->
+<p-dialog [(visible)]="showDialog" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+  [style]="{width: '50vw'}">
+  <ng-template pTemplate="header">
+    <i class="pi-plus pi p-mr-1"></i>
+    <span class="p-mr-auto">
+      Ajouter une activité
+    </span>
+  </ng-template>
+  <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+  <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+  <p-divider></p-divider>
+  <!-- Form -->
+  <form (ngSubmit)="createActivite()" #dtf="ngForm">
+
+
+    <div class="p-fluid grid">
+
+      <div class="p-fluid p-col-12 col-md-12">
+        <label for="typeActivites">Type d'activite </label>
+        <p-dropdown [(ngModel)]="activite.typeActivites" optionLabel="libelle" inputId="typeActivites"
+          [options]="typeActivites" name="typeActivites" [filter]="true" filterBy="libelle" [showClear]="true" placeholder="Selectionner...">
+        </p-dropdown>
+      </div>
+
+      <div class="p-fluid p-col-12 col-md-12">
+        <label for="libelle">Libelle</label>
+
+        <input id="libelle" name="libelle" #libelle="ngModel" [(ngModel)]="activite.libelle" pInputText required />
+        <div class="p-error" *ngIf="libelle.invalid && (libelle.dirty || libelle.touched) && libelle.errors">
+          <span>Veillez renseigner le libelle</span>
+        </div>
+
+
+      </div>
+
+      <div class="p-fluid p-col-12 col-md-12">
+        <label for="description">description</label>
+        <input id="description" name="description" #description="ngModel" [(ngModel)]="activite.description"
+          pInputText />
+        <!-- <div class="p-error"
+                    *ngIf="description.invalid && (description.dirty || description.touched) && description.errors">
+                    <span>Veillez renseigner la description</span>
+                </div> -->
+      </div>
+
+    </div>
+
+
+    <p-divider></p-divider>
+    <div class="p-ml-auto text-right">
+      <button type="reset" label="Annuler" (click)="showDialog=false"
+        class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+      <button type="submit" [disabled]="!dtf.form.valid" label="Ajouter" icon="pi pi-plus"
+        class="p-button-raised p-button-text p-button-success" pButton>
+      </button>
+    </div>
+  </form>
+</p-dialog>
+
+
+<!-- Dialog-->
+<p-dialog [(visible)]="showDialogSource" [modal]="true" [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
+  [style]="{width: '50vw'}">
+  <ng-template pTemplate="header">
+    <i class="pi-plus pi p-mr-1"></i>
+    <span class="p-mr-auto">
+      Ajouter une source de financement
+    </span>
+  </ng-template>
+  <p-progressBar *ngIf="isDialogOpInProgress" mode="indeterminate"></p-progressBar>
+  <p-message *ngIf="dialogErrorMessage" severity="error" [text]="dialogErrorMessage"></p-message>
+  <p-divider></p-divider>
+  <!-- Form -->
+  <form (ngSubmit)="createSourceFinancement()" #dtfi="ngForm">
+
+
+    <div class="p-fluid grid">
+
+      <div class="p-fluid p-col-12 col-md-6">
+        <label for="libelle">Libelle</label>
+
+        <input id="libelle" name="libelle" #libelle="ngModel" [(ngModel)]="sourceFinancement.libelle" pInputText
+          required />
+        <div class="p-error" *ngIf="libelle.invalid && (libelle.dirty || libelle.touched) && libelle.errors">
+          <span>Veillez renseigner le libelle</span>
+        </div>
+
+
+      </div>
+      <div class="p-fluid p-col-12 col-md-6">
+        <label for="montant">Montant</label>
+
+        <input id="montant" name="montant" #montant="ngModel" [(ngModel)]="sourceFinancement.montant" pInputText
+          required />
+        <div class="p-error" *ngIf="montant.invalid && (montant.dirty || montant.touched) && montant.errors">
+          <span>Veillez renseigner le montant</span>
+        </div>
+
+
+      </div>
+      <div class="p-fluid p-col-12 col-md-6">
+        <label for="debut">Debut </label>
+        <p-calendar name="debut" #debut="ngModel" [(ngModel)]="sourceFinancement.debut" dateFormat="dd-mm-yy"
+          [showIcon]="true" inputId="icon"></p-calendar>
+
+      </div>
+
+      <div class="p-fluid p-col-12 col-md-6">
+        <label for="fin">Fin</label>
+        <p-calendar name="fin" #fin="ngModel" [(ngModel)]="sourceFinancement.fin" dateFormat="dd-mm-yy"
+          [showIcon]="true" inputId="icon"></p-calendar>
+
+      </div>
+
+    </div>
+
+
+    <p-divider></p-divider>
+    <div class="p-ml-auto text-right">
+      <button type="reset" label="Annuler" (click)="showDialog=false"
+        class="p-button-raised p-button-text p-button-success mr-2" pButton></button>
+      <button type="submit" [disabled]="!dtfi.form.valid" label="Ajouter" icon="pi pi-plus"
+        class="p-button-raised p-button-text p-button-success" pButton>
+      </button>
+    </div>
+  </form>
+</p-dialog>
+<!-- Confirmation -->
+<app-confirmation></app-confirmation>

@@ -1,0 +1,40 @@
+<nb-card>
+  <nb-card-header>DETAILS UTILISATEUR</nb-card-header>
+  <nb-card-body>
+    <div class="row">
+      <div class="col-md-6">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item list-group-item-action">
+            <span class="va-m"><span class="font-weight-bold">Matricule:</span>  {{compte.matricule}}</span>
+          </li>
+          <li class="list-group-item list-group-item-action">
+            <span class="va-m"><span class="font-weight-bold">Nom:</span>  {{compte.nom}}</span>
+          </li>
+          <li class="list-group-item list-group-item-action">
+           <span class="va-m"><span class="font-weight-bold"> Prénom:</span>  {{compte.prenom}}</span>
+         </li>
+        </ul>
+     </div>
+     <div class="col-md-6">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item list-group-item-action">
+          <span class="va-m"><span class="font-weight-bold">Statut:</span>  {{compte.actif==true ? 'Activé':'Déactivité'}}</span>
+        </li>
+        <li class="list-group-item list-group-item-action">
+          <span class="va-m"><span class="font-weight-bold">Email:</span>  {{compte.email}}</span>
+        </li>
+        <li class="list-group-item list-group-item-action">
+         <span class="va-m"><span class="font-weight-bold"> Téléphone:</span> {{compte.telephone}} </span>
+       </li>
+  
+      </ul>
+   </div>
+  
+  </div>
+  </nb-card-body>
+  <nb-card-footer>
+    <div class="p-ml-auto text-right">
+      <button nbButton type="reset" label="Fermer" (click)="cancel()" class="p-button-raised p-button-text p-button-success mr-2" pButton></button> 
+    </div>
+  </nb-card-footer>
+</nb-card>
